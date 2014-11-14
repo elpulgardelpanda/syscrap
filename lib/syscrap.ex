@@ -1,0 +1,2 @@
+defmodule Syscrap do
+end
