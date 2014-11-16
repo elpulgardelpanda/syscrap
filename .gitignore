@@ -31,3 +31,4 @@ public/system/*
 *.swp
 *.pid
 .emacs*
+config/private_config.exs
