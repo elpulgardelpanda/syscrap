@@ -9,7 +9,7 @@ defmodule Syscrap do
     # Here are my pool options
     mongo_pool_opts = [
       name: {:local, :mongo_pool},
-      worker_module: Syscrap.MongoConnection,
+      worker_module: Syscrap.Mongo,
       size: 5,
       max_overflow: 10
     ]
