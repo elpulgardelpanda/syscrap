@@ -1,3 +1,4 @@
 %{"bson": {:hex, :bson, "0.4.2"},
   "gen_smtpc": {:git, "git://github.com/OtpChatBot/gen_smtpc.git", "f36c2b904be30a94f1b7392b0ef05a8c999e6f4c", []},
-  "mongo": {:hex, :mongo, "0.5.0"}}
+  "mongo": {:hex, :mongo, "0.5.0"},
+  "poolboy": {:hex, :poolboy, "1.4.0"}}
