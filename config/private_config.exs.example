@@ -1,0 +1,9 @@
+use Mix.Config
+
+config :syscrap, :email_settings,
+  default_to: 'receiver@email.com',
+  address: 'smtp.host.com',
+  port: 587,
+  domain: 'some.domain.com',
+  username: 'a user name',
+  password: 'his password'
