@@ -12,7 +12,7 @@ defmodule Syscrap.Mixfile do
   #
   # Type `mix help compile.app` for more information
   def application do
-    [applications: [:logger],
+    [applications: [:logger, :ssh],
      mod: {Syscrap, []}]
   end
 
