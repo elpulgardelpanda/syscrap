@@ -26,7 +26,7 @@ defmodule Syscrap.Mixfile do
   #
   # Type `mix help deps` for more examples and options
   defp deps do
-    [{:gen_smtpc, github: "OtpChatBot/gen_smtpc"},
+    [{:gen_smtp, github: "Vagabond/gen_smtp"},
      {:mongo, "~> 0.5"},
      {:poolboy, "~> 1.4.0"}]
   end
