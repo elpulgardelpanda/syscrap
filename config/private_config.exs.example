@@ -1,9 +1,10 @@
 use Mix.Config
 
-config :syscrap, :email_settings,
-  default_to: 'receiver@email.com',
-  address: 'smtp.host.com',
-  port: 587,
-  domain: 'some.domain.com',
-  username: 'a user name',
-  password: 'his password'
+config :syscrap, :smtp_opts, [
+      {:relay,'smtp.myservice.net'},
+      {:port, 587},
+      {:tls, :never},
+      {:auth,:always},
+      {:username, 'user'},
+      {:password, 'pass'}
+    ]
