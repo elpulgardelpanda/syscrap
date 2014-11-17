@@ -40,6 +40,36 @@ git config branch.autosetuprebase always
 * Main supervisor
 
 
+## Map
+
+```
+                            +------------+  +--+     +--+          
+                            |MetricWorker|  |MW| ... |MW|          
+                            +--------+---+  ++-+     ++-+          
+                                     |       |        |            
+                                     |       |        |            
+                                     +-------+--------+            
+                                     |                             
++-------------+  +--+     +--+   +---+------------+  +--+      +--+
+|ReactorWorker|  |RW| ... |RW|   |AggregatorWorker|  |AW|  ... |AW|
++----------+--+  +-++     +-++   +-------+--------+  +-++      +-++
+           |       |        |            |             |         | 
+           |       |        |            |             |         | 
+           +-------+--------+            +-------------+---------+ 
+           |                             |                         
+         +-+-----+                  +----+-----+                   
+         |Reactor+--------+   +-----+Aggregator|                   
++-----+  +-------+        |   |     +----------+                   
+|Mongo|                   |   |                                    
++--+--+                   |   |                                    
+   |      +---------+     |   |             +---+                  
+   +------+MongoPool|     |   |             |SSH|                  
+          +----+----+     |   |             +-+-+                  
+               |        +-+---+-+             |                    
+               +--------+Syscrap+-------------+                    
+                        +-------+                                  
+```
+
 ## Application structure
 
 The main supervisor ensures an `Aggregator`, a `Reactor`, the
