@@ -52,7 +52,14 @@ defmodule Syscrap.Mongo do
 
     ### Using `transaction`
 
-    TODO
+    ```
+    :poolboy.transaction(:mongo_pool, fn(worker) -> 
+      coll = worker |> yield db: 'syscrap', coll: 'test'
+      MC.find(coll) |> Enum.to_list
+      %{c: "blabla"} |> MC.insert_one(coll)
+      MC.find(coll) |> Enum.to_list
+    end)
+    ```
 
   """
 
