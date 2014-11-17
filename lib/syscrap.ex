@@ -21,7 +21,7 @@ defmodule Syscrap do
     ]
 
     children = [
-      supervisor(Syscrap.Aggregator, []),
+      supervisor(Syscrap.Aggregator, [[]]),
       :poolboy.child_spec(:mongo_pool, mongo_pool_opts, mongo_worker_opts)
     ]
 
