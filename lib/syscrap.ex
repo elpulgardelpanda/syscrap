@@ -1,8 +1,10 @@
 defmodule Syscrap do
   use Application
 
-  # See http://elixir-lang.org/docs/stable/elixir/Application.html
-  # for more information on OTP Applications
+  @moduledoc """
+    Main Syscrap Application
+  """
+
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 
@@ -19,8 +21,7 @@ defmodule Syscrap do
     ]
 
     children = [
-      # Define workers and child supervisors to be supervised
-      # worker(Syscrap.Worker, [arg1, arg2, arg3])
+      supervisor(Syscrap.Aggregator, []),
       :poolboy.child_spec(:mongo_pool, mongo_pool_opts, mongo_worker_opts)
     ]
 
