@@ -1,12 +1,12 @@
-defmodule Syscrap.Aggregator.Metric do
+defmodule Syscrap.Reactor.Worker do
   use GenServer
 
   @moduledoc """
-    Process responsible for gathering a specific metric for the given `Target`.
+    Process responsible for firing a specific alert for the given `Reaction`.
   """
 
   def start_link(opts) do
-    name = String.to_atom("#{opts[:metric]} Metric for #{opts[:name]}")
+    name = String.to_atom("Reactor.Worker for #{opts[:name]}")
     GenServer.start_link(__MODULE__, opts, [name: name])
   end
 
