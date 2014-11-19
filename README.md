@@ -84,7 +84,7 @@ are all alive.
 The `Aggregator` is a mere supervisor for every `Aggregator.Worker`. It keeps
 alive one and only one `Aggregator.Worker` for each monitored `Target`.
 
-An `Aggregator.Worker` supervises several `Aggregator.Metric` processes. Every
+An `Aggregator.Worker` supervises several `Aggregator.Wrapper` processes. Every
 `Aggregator.Worker` gets an open connection from the SSH application, and passes
 it to its children `Aggregator.Wrapper`. Each `Aggregator.Worker` will keep
 an open connection to its monitored `Target`, and recreate it if gets lost.
@@ -94,20 +94,20 @@ choose which one to run based on the request made by the underlying
 `Aggregator.Worker`. That means the actual gathering loop executed resides
 on one module from the `Syscrap.Aggregator.Metric.*` namespace. Those can be:
 
-* Vitals: regular CPU, RAM, swap & disk data.
-* Logs: worth noting messages seen on logs.
-* Traffic: traffic stats yielded by nginx.
-* POL(Proof-Of-Life) data:
-  * File: check files periodically touched by the apps.
-  * Port: try to establish a TCP connection to a port.
-  * Socket: try to establish a TCP connecction to a socket.
+* `Vitals`: regular CPU, RAM, swap & disk data.
+* `Logs`: worth noting messages seen on logs.
+* `Traffic`: traffic stats yielded by nginx.
+* `POL`(Proof-Of-Life) data:
+  * `File`: check files periodically touched by the apps.
+  * `Port`: try to establish a TCP connection to a port.
+  * `Socket`: try to establish a TCP connecction to a socket.
 
 All these modules implement the `Syscrap.Aggregator.Metric` behaviour. They are
 the ones that actually get the data. Their processing loops look like:
 
-* Execute gathering command
-* Save to DB (if needed)
-* Sleep
+1. Execute gathering command
+2. Save to DB (if needed)
+3. Sleep
 
 Whether its command is a simple `free` or a `df -h`, every `Aggregator.Metric` is
 specialized on its task. They may write to different DB collections. Their loop
