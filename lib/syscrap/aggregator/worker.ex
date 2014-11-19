@@ -3,7 +3,7 @@ defmodule Syscrap.Aggregator.Worker do
 
   @moduledoc """
     Aggregation worker for a single `Target`. It supervises
-    every `Metric` configured for this `Target`.
+    every `Wrapper` configured for this `Target`.
   """
 
   def start_link(opts) do
@@ -19,7 +19,7 @@ defmodule Syscrap.Aggregator.Worker do
                [metric: :logs]]
     children = for m <- metrics do
       m = Keyword.merge(m,[name: opts[:name]])
-      worker(Syscrap.Aggregator.Metric, [m], [id: m[:metric]])
+      worker(Syscrap.Aggregator.Wrapper, [m], [id: m[:metric]])
     end
 
     supervise(children, strategy: :one_for_one)
