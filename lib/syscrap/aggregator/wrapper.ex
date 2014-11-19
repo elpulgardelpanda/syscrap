@@ -6,14 +6,12 @@ defmodule Syscrap.Aggregator.Wrapper do
   """
 
   def start_link(opts) do
-    name = String.to_atom("#{opts[:metric]} Wrapper for #{opts[:name]}")
+    name = String.to_atom("#{opts[:metric]} for #{opts[:name]}")
     GenServer.start_link(__MODULE__, opts, [name: name])
   end
 
   def init(opts) do
-
-    # TODO: start gathering loop for the requested metric and the given `Target`
-
+    opts[:metric].start_gathering(opts)
     {:ok, opts}
   end
 end

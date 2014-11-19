@@ -7,19 +7,27 @@ defmodule Syscrap.Aggregator.Worker do
   """
 
   def start_link(opts) do
-    name = String.to_atom("Aggregator.Worker for " <> opts[:name])
+    name = String.to_atom("Worker for " <> opts[:name])
     Supervisor.start_link(__MODULE__, opts, [name: name])
   end
 
   def init(opts) do
+    alias Syscrap.Aggregator.Metric, as: M
 
-    # TODO: add Aggregator.Metrics for each Metric configured for this Target
-    metrics = [[metric: :vitals],
-               [metric: :traffic],
-               [metric: :logs]]
+    # TODO: get `target_metrics` from db
+    target_metrics = ["Vitals","Traffic","POL.File"]
+
+    # TODO: a way to get `all_metrics` ?
+    all_metrics = [ M.Vitals, M.Traffic, M.Logs,
+                    M.POL.File, M.POL.Port, M.POL.Socket ]
+
+    metrics = Enum.filter(all_metrics, fn(m) ->
+                            String.contains?(to_string(m),target_metrics)
+                          end)
+
     children = for m <- metrics do
-      m = Keyword.merge(m,[name: opts[:name]])
-      worker(Syscrap.Aggregator.Wrapper, [m], [id: m[:metric]])
+      data = [metric: m, name: opts[:name]]
+      worker(Syscrap.Aggregator.Wrapper, [data], [id: data[:metric]])
     end
 
     supervise(children, strategy: :one_for_one)
