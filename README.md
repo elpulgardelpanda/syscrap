@@ -90,9 +90,9 @@ it to its children `Aggregator.Wrapper`. Each `Aggregator.Worker` will keep
 an open connection to its monitored `Target`, and recreate it if gets lost.
 
 Every `Aggregator.Wrapper` executes a specific metric gathering loop. It will
-choose which one to run based on the request made by the underlying
-`Aggregator.Worker`. That means the actual gathering loop executed resides
-on one module from the `Syscrap.Aggregator.Metric.*` namespace. Those can be:
+choose one from the `Syscrap.Aggregator.Metric.*` namespace, where the
+actual gathering loop logic resides. The choice will be made based on the
+request made by the underlying `Aggregator.Worker`. Metrics are one of:
 
 * `Vitals`: regular CPU, RAM, swap & disk data.
 * `Logs`: worth noting messages seen on logs.
