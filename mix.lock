@@ -1,4 +1,6 @@
 %{"bson": {:hex, :bson, "0.4.2"},
   "gen_smtp": {:git, "git://github.com/Vagabond/gen_smtp.git", "8f7ba01172e679e8b4262334cefc3451b4c36777", []},
+  "harakiri": {:hex, :harakiri, "0.2.0"},
   "mongo": {:hex, :mongo, "0.5.0"},
-  "poolboy": {:hex, :poolboy, "1.4.0"}}
+  "poolboy": {:hex, :poolboy, "1.4.0"},
+  "sshex": {:hex, :sshex, "1.0.0"}}
