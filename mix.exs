@@ -3,7 +3,7 @@ defmodule Syscrap.Mixfile do
 
   def project do
     [app: :syscrap,
-     version: "0.0.1",
+     version: get_version_number,
      elixir: "~> 1.0",
      deps: deps]
   end
@@ -20,5 +20,12 @@ defmodule Syscrap.Mixfile do
       {:poolboy, "~> 1.4.0"},
       {:harakiri, "0.2.0"},
       {:sshex, "1.0.0"} ]
+  end
+
+  defp get_version_number do
+    commit = :os.cmd('git rev-parse --short HEAD') |> to_string |> String.rstrip(?\n)
+    v = "1.0.0+#{commit}"
+    if Mix.env == :dev, do: v = v <> "dev"
+    v
   end
 end

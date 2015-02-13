@@ -136,6 +136,12 @@ processes.
 At any point of the process, a `ReactorWorker` or one of its children can use
 the SMTP helpers to send email notifications.
 
+
+### Notification
+
+The `Notificator` ...
+
+
 (...)
 
 
