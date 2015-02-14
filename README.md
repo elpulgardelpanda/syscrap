@@ -15,7 +15,7 @@ many metrics can already be gathered, so we can work with it.
 
 ## Development
 
-We will try to use pull --rebase.
+We will try to use `git pull --rebase`.
 Run this once the project is cloned, from the root directory of the project:
 
 ```
@@ -24,59 +24,59 @@ git config branch.autosetuprebase always
 ( Taken from http://stevenharman.net/git-pull-with-automatic-rebase )
 
 
-## Project components
-
-* SSH Connector
-* Mongo Workers
-* Mongo Pool
-* SMTP Mailer helper
-* Aggregator
-* Aggregator Workers
-* Aggregator Wrappers
-* Metric
-* Target
-* Reaction
-* Reactor
-* Reactor Workers
-* Main supervisor
-
-
 ## Map
 
 ```
-    +--------------+     +--+    +------------------+     +--+
-    |Reactor.Worker| ... |RW|    |Aggregator.Wrapper| ... |AW|
-    +-----------+--+     +-++    +--------+---------+     ++-+
-                |          |              |                 |
-                |          |              |                 |
-                +----------+              +-----------------+
-                    |                     |
-                  +-+-----+           +---+-------------+     +--+
-                  |Reactor+------+    |Aggregator.Worker| ... |AW|
-                  +-------+      |    +----+------------+     +-++
-                                 |         |                   |
-                                 |         |                   |
-        +-----+     +-+          |         +-------------------+
-        |Mongo| ... |M|          |         |
-        +--+--+     +++          |    +----+-----+
-           |         |           | +--+Aggregator|
-           +---------+           | |  +----------+
-                     |           | |
-                     |           | |      +---+       +-----------+
-               +-----+---+       | |      |SSH|       |Notificator|
-               |MongoPool|       | |      +-+-+       +-----+-----+
-               +----+----+       | |        |               |
-                    |        +---+-+-+      |               |
-                    +--------+Syscrap+------+---------------+
-                             +-------+
-
+                                +-----------------+
+                                |Aggregator.Metric|
+                                +--------+--------+
+                                          |
+                                +--------+---------+     +--+
+                                |Aggregator.Wrapper| ... |AW|
+                                +--------+---------+     +-++
+                                          |                 |
+                                          +-----------------+
+    +----------------+                    |
+    |Reactor.Reaction|                +---+-------------+     +--+
+    +------+---------+                |Aggregator.Worker| ... |AW|
+           |                          +----+------------+     ++-+
+    +------+-------+     +--+              |                   |
+    |Reactor.Worker| ... |RW|              +-------------------+
+    +-----------+--+     +-++              |
+                |          |          +----+-----+
+                +---+------+      +---+Aggregator|
+                    |             |   +----------+
+                  +-+-----+       |
+                  |Reactor+----+  |   +------------------------+
+                  +-------+    |  |   |Notificator.Notification|
+                               |  |   +------+-----------------+
+                               |  |          |
+       +-----+     +-+         |  |   +------+-----------+    +--+
+       |Mongo| ... |M|         |  |   |Notificator.Worker|... |NW|
+       +--+--+     +++         |  |   +------+-----------+    +-++
+          |         |          |  |          |                  |
+          +---------+          |  |          +---+--------------+
+                    |          |  |              |
+              +-----+---+      |  |       +------+----+
+              |MongoPool|      |  |       |Notificator|
+              +-------+-+      |  |       +-----+-----+
+                      |        |  |             |
+    +---+  +------+   |      +-+--+--+          |     +--------+
+    |SSH|  |Logger|   +------+Syscrap+----------+     |Harakiri|
+    +-+-+  +--+---+          +-+-----+                +----+---+
+      |       |                |                           |
+      |       |         +------+----+                      |
+      +-------+---------+ Erlang VM +----------------------+
+                        +-----------+
 ```
 
 ## Application structure
 
-The main supervisor ensures an `Aggregator`, a `Reactor`, the
-[SSH](http://www.erlang.org/doc/man/ssh.html) application, and the Mongo pool,
-are all alive.
+The main supervisor ensures an `Aggregator`, a `Reactor`, a `Notificator`,
+and the Mongo pool, are all alive. The Erlang system also ensures
+[SSH](http://www.erlang.org/doc/man/ssh.html),
+[Logger](https://github.com/elixir-lang/elixir/tree/master/lib/logger) and
+[Harakiri](https://github.com/elpulgardelpanda/harakiri) are running.
 
 
 ### Aggregation
@@ -127,7 +127,8 @@ underlying Mongo must scale too.
 ### Reaction
 
 The `Reactor` only supervises a limited pool of `Reactor.Worker` processes.
-It keeps alive one process for each `Reaction` defined in the system.
+It keeps alive one worker process for each `Reaction` defined in the
+`Syscrap.Reactor.Reaction.*` namespace.
 
 Each `Reactor.Worker` starts the checking loop for the given `Reaction`. The
 actual `Reaction` logic can be just as simple as a threshold check over a DB
@@ -156,7 +157,9 @@ module to use, and provides all the needed parameters for it to work.
 
 Each `Notificator.Worker` lives in a loop consuming pending notifications. For
 each pending notification it gets, it starts a process and calls the `run`
-function for the right `Notification` module.
+function for the right module from the `Syscrap.Notificator.Notification.*`
+namespace.
+
 
 ## TODOs
 
