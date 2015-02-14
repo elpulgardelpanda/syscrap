@@ -1,3 +1,4 @@
 use Mix.Config
 
-# anything else
+# path to tmp on production filesystem
+config :syscrap, :tmp_path, "~/syscrap/tmp"

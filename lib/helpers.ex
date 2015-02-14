@@ -1,6 +1,13 @@
 require Logger, as: L
 
-defmodule Helpers do
+defmodule Syscrap.Helpers do
+
+  @doc """
+    Convenience to get environment bits. Avoid all that repetitive
+    `Application.get_env( :myapp, :blah, :blah)` noise.
+  """
+  def env(key, default), do: env(:syscrap, key, default)
+  def env(app, key, default \\ nil), do: Application.get_env(app, key, default)
 
   @doc """
     Spit to logger, with proper margin and colors.
@@ -12,11 +19,10 @@ defmodule Helpers do
   """
   def spit(obj, caller \\ nil) do
     loc = case caller do
-      nil -> ""
       %{file: file, line: line} -> "\n\n#{file}:#{line}"
+      _ -> ""
     end
     "#{loc}\n\n#{inspect obj}\n\n" |> L.debug
   end
-
 end
 
