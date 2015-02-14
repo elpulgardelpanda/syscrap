@@ -53,7 +53,7 @@ defmodule Syscrap.Mongo do
     ### Using `transaction`
 
     ```
-    :poolboy.transaction(:mongo_pool, fn(worker) -> 
+    :poolboy.transaction(:mongo_pool, fn(worker) ->
       coll = worker |> yield db: 'syscrap', coll: 'test'
       MC.find(coll) |> Enum.to_list
       %{c: "blabla"} |> MC.insert_one(coll)
@@ -63,24 +63,18 @@ defmodule Syscrap.Mongo do
 
   """
 
-  def start_link(opts \\ []) do
-    GenServer.start_link(__MODULE__, :ok, opts)
-  end
+  def start_link(opts \\ []), do: GenServer.start_link(__MODULE__, :ok, opts)
 
   @doc """
     Creates the connection for this worker.
     `opts` will be used when needed. By now there's no need.
   """
-  def init(_opts) do
-    {:ok, Mongo.connect!}
-  end
+  def init(_opts), do: {:ok, Mongo.connect!}
 
   @doc """
     Yield the connection when asked
   """
-  def handle_call(:yield, _from, conn) do
-    {:reply, conn, conn}
-  end
+  def handle_call(:yield, _from, conn), do: {:reply, conn, conn}
 
   @doc """
     Request the connection to the worker, and get db/collection for given names.

@@ -6,14 +6,12 @@ defmodule Syscrap.Reactor.Worker do
   """
 
   def start_link(opts) do
-    name = String.to_atom("Reactor.Worker for #{opts[:name]}")
+    name = String.to_atom("Worker for #{to_string(opts[:reaction])}")
     GenServer.start_link(__MODULE__, opts, [name: name])
   end
 
   def init(opts) do
-
-    # TODO: start gathering loop for the requested metric and the given `Target`
-
+    opts[:reaction].start_checking(opts)
     {:ok, opts}
   end
 end

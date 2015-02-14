@@ -16,7 +16,7 @@ defmodule Syscrap.Mailer do
                   "\r\n" <>
                   "Actual body"
 
-      raw_body |> send from: 'crappy@syscrap.com', to: 'crappier@syscrap.com'
+      raw_body |> send from: 'crappy <crappy@syscrap.com>', to: 'crappier <crappier@syscrap.com>'
     ```
   """
 

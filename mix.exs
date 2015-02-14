@@ -19,7 +19,8 @@ defmodule Syscrap.Mixfile do
       {:mongo, "~> 0.5"},
       {:poolboy, "~> 1.4.0"},
       {:harakiri, "0.2.0"},
-      {:sshex, "1.0.0"} ]
+      {:sshex, "1.0.0"},
+      {:bottler, "0.3.0"} ]
   end
 
   defp get_version_number do

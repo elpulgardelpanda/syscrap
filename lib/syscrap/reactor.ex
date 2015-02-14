@@ -11,14 +11,14 @@ defmodule Syscrap.Reactor do
   end
 
   def init(opts) do
+    alias Syscrap.Reactor.Reaction, as: R
 
-    # TODO: add Reactor.Workers for each Reaction defined on DB
-    reactions = [[name: "name1"],
-                 [name: "name2"],
-                 [name: "name3"]]
+    # TODO: a way to get defined `reactions` ?
+    reactions = [ R.Range ]
 
     children = for r <- reactions do
-      worker(Syscrap.Reactor.Worker, [r], [id: r[:name]])
+      data = [reaction: r]
+      worker(Syscrap.Reactor.Worker, [data], [id: r])
     end
 
     supervise(children, strategy: :one_for_one)

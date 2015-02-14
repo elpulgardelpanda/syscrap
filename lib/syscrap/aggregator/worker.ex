@@ -25,6 +25,8 @@ defmodule Syscrap.Aggregator.Worker do
                             String.contains?(to_string(m),target_metrics)
                           end)
 
+    # TODO: get SSH connection and add it to data being passed to wrappers
+
     children = for m <- metrics do
       data = [metric: m, name: opts[:name]]
       worker(Syscrap.Aggregator.Wrapper, [data], [id: data[:metric]])

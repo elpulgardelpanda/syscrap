@@ -18,7 +18,7 @@ defmodule Syscrap.Aggregator do
                [name: "name3",ip: "ip3",port: "port3",user: "user3"]]
 
     children = for t <- targets do
-      worker(Syscrap.Aggregator.Worker, [t], [id: t[:name]])
+      supervisor(Syscrap.Aggregator.Worker, [t], [id: t[:name]])
     end
 
     supervise(children, strategy: :one_for_one)
