@@ -1,18 +1,26 @@
 defmodule Syscrap.Notificator do
-  use GenServer
+  use Supervisor
 
   @moduledoc """
-    Process responsible for sending notifications.
+    Main notification supervisor. It supervises a pool of
+    `Notification.Worker` processes.
   """
 
   def start_link(opts) do
-    GenServer.start_link(__MODULE__, opts, [name: __MODULE__])
+    Supervisor.start_link(__MODULE__, opts, [name: __MODULE__])
   end
 
   def init(opts) do
+    alias Syscrap.Notificator.Notification, as: N
 
-    # TODO: start notification loop
+    # TODO: get pool size from config
+    pool_size = 5
 
-    {:ok, opts}
+    children = for i <- (0..pool_size) do
+      id = "Notificator.Worker.#{to_string(i)}" |> String.to_atom
+      worker(Syscrap.Notificator.Worker, [[name: id]], [id: id])
+    end
+
+    supervise(children, strategy: :one_for_one)
   end
 end

@@ -3,11 +3,11 @@ defmodule Syscrap.Reactor do
 
   @moduledoc """
     Main reaction supervisor. It spawns and supervises one
-    `Reactor.Worker` for each `Reaction` defined on DB.
+    `Reactor.Worker` for each `Reaction` defined module on the system.
   """
 
   def start_link(opts) do
-    Supervisor.start_link(__MODULE__, opts, [name: Syscrap.Reactor])
+    Supervisor.start_link(__MODULE__, opts, [name: __MODULE__])
   end
 
   def init(opts) do
