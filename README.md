@@ -119,31 +119,44 @@ period is also different.
 A `Mongo` worker is a wrapper around a connection to the underlying MongoDB
 server. `Mongo` workers are pooled using
 [poolboy](https://github.com/devinus/poolboy). The pool size is configurable
-to accomodate every `Aggregator.Metric` on the system. If the system scales, the
+to accomodate every `Metric` on the system and everything needed
+by every `Reaction` (which may be much). If the system scales, the
 underlying Mongo must scale too.
 
 
 ### Reaction
 
-The `Reactor` only supervises `ReactorWorker` processes. It keeps alive one
-process for each `Reaction` defined in the system.
+The `Reactor` only supervises a limited pool of `Reactor.Worker` processes.
+It keeps alive one process for each `Reaction` defined in the system.
 
-Each `ReactorWorker` is specific for its `Reaction`. The actual `Reaction`
-logic can be so simple, like a threshold check over a DB stored value. But also
-can be much more complex. It may need to spawn and supervise its own pool of
-processes.
+Each `Reactor.Worker` starts the checking loop for the given `Reaction`. The
+actual `Reaction` logic can be just as simple as a threshold check over a DB
+stored value. But also can be much more complex. It may need to spawn and
+supervise its own pool of processes. That's totally up to the `Reaction`
+implementation.
 
-At any point of the process, a `ReactorWorker` or one of its children can use
-the SMTP helpers to send email notifications.
+At any point of the process, a `Reaction` or one of its children can
+queue a notification on the `Notificator`, read/write DB data using the `Mongo`
+pool.
 
 
 ### Notification
 
-The `Notificator` ...
+The `Notificator` supervises a limited pool of `Notificator.Worker`
+processes. The size of the pool is configurable. If the system scales, the
+pool of `Notificator.Worker`s must scale too.
 
+The `Notificator` also provides helpers for any other process on the system
+to queue notifications. These are simple functions to properly add elements
+to the underlying Mongo queue. They add no load to the `Notificator`
+process itself.
 
-(...)
+A pending notification on DB contains a reference to the actual `Notification`
+module to use, and provides all the needed parameters for it to work.
 
+Each `Notificator.Worker` lives in a loop consuming pending notifications. For
+each pending notification it gets, it starts a process and calls the `run`
+function for the right `Notification` module.
 
 ## TODOs
 
