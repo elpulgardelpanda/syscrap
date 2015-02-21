@@ -25,10 +25,14 @@ defmodule Syscrap.Aggregator.Worker do
                             String.contains?(to_string(m),target_metrics)
                           end)
 
+    # DB: FIND all AggregationOptions for a target
+    # DB: UPDATE detected_specs for a Target
+
     # TODO: get SSH connection and add it to data being passed to wrappers
 
     children = for m <- metrics do
       data = [metric: m, name: opts[:name]]
+      # TODO: include specific metric options for this target
       worker(Syscrap.Aggregator.Wrapper, [data], [id: data[:metric]])
     end
 

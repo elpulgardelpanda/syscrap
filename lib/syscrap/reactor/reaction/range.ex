@@ -10,5 +10,10 @@ defmodule Syscrap.Reactor.Reaction.Range do
   @behaviour Syscrap.Reactor.Reaction
 
   def start_checking(opts) do
+
+    # DB: FIND last Aggregation for a metric,target,type
+    # DB: FINDandMODIFY some Aggregations for a metric,target,type
+    # DB: INSERT Notification for a target,type
+
   end
 end

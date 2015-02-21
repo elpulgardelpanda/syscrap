@@ -19,6 +19,10 @@ defmodule Syscrap.Notificator.Worker do
   defp notifying_loop do
     # TODO: pop next notification from queue, pick the right
     # `Notification` module, and run it
+    
+    # DB: FINDandMODIFY first pending or stranded Notification
+    # DB: FIND NotificationOptions for a target,type
+    # DB: DELETE Notification
   end
 
 end

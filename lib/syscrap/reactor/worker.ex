@@ -11,6 +11,10 @@ defmodule Syscrap.Reactor.Worker do
   end
 
   def init(opts) do
+
+    # DB: FIND all ReactionTargets for this reaction
+    # DB: FIND the ReactionOptions for this reaction
+
     opts[:reaction].start_checking(opts)
     {:ok, opts}
   end
