@@ -6,8 +6,8 @@ defmodule Syscrap.Helpers do
     Convenience to get environment bits. Avoid all that repetitive
     `Application.get_env( :myapp, :blah, :blah)` noise.
   """
-  def env(key, default), do: env(:syscrap, key, default)
-  def env(app, key, default \\ nil), do: Application.get_env(app, key, default)
+  def env(key, default \\ nil), do: env(:syscrap, key, default)
+  def env(app, key, default), do: Application.get_env(app, key, default)
 
   @doc """
     Spit to logger, with proper margin and colors.
