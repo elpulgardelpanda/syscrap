@@ -18,7 +18,8 @@ use Mix.Config
 # This file is not on the repo. Look at private_config.exs.example for a
 # starting point.
 
-if Mix.env == :prod, do: import_config "private_config.exs"
-
 # Add configuration based on env
 import_config "#{Mix.env}.exs"
+
+if Mix.env == :prod, do: import_config "private_config.exs"
+
