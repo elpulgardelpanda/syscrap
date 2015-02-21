@@ -52,6 +52,14 @@ defmodule Syscrap.Mongo do
 
     ### Using `transaction`
 
+    If you prefer to use
+    [transaction](https://github.com/devinus/poolboy/blob/94a3f7a481f36e71d5750f76fcc3205461d3feff/src/poolboy.erl#L71)
+    then you just give it a `fn` that it will receive a `worker`.
+
+    You can use that `worker` with `yield` to get a `Mongo.Collection`.
+    Then you can use that collection freely. When you are done with it,
+    `transaction` will properly release the worker into the pool for you.
+
     ```
     :poolboy.transaction(:mongo_pool, fn(worker) ->
       coll = worker |> yield db: 'syscrap', coll: 'test'
