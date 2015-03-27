@@ -87,6 +87,7 @@ defmodule Syscrap.Mongo do
   @doc """
     Request the connection to the worker, and get db/collection for given names.
   """
+  def yield(server, [coll: coll]), do: yield(server, [db: "syscrap", coll: coll])
   def yield(server, [db: db, coll: coll]) do
     GenServer.call(server, :yield)
     |> Mongo.db(db)
@@ -99,6 +100,7 @@ defmodule Syscrap.Mongo do
     Returns requested Mongo collection, and the underlying worker.
     You should checkin that worker back to the pool using `release/1`.
   """
+  def get([coll: coll]), do: get(db: "syscrap", coll: coll)
   def get([db: db, coll: coll]), do: get(db: db, coll: coll, pool: :mongo_pool)
   def get([db: db, coll: coll, pool: pool]) do
     w = :poolboy.checkout(pool)
@@ -110,5 +112,19 @@ defmodule Syscrap.Mongo do
     Checkin given worker to given pool (`:mongo_pool` by default).
   """
   def release(worker, pool \\ :mongo_pool), do: :poolboy.checkin(pool, worker)
+
+  @doc """
+    Convenience function to perform a single query.
+  """
+  def find([coll: coll]), do: find(coll: coll, selector: %{})
+  def find([coll: coll, selector: selector]), do: find(db: "syscrap",
+          coll: coll, pool: :mongo_pool, selector: selector, projector: %{})
+  def find([db: db, coll: coll, pool: pool, selector: selector,
+          projector: projector]) do
+    {coll, worker} = get db: db, coll: coll
+    result = Mongo.Collection.find(coll, selector, projector) |> Enum.to_list
+    release worker, pool
+    result
+  end
 
 end
