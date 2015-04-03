@@ -7,8 +7,28 @@ defmodule Syscrap do
 
   use Application
 
-  def start(_type, _args) do
-    import Supervisor.Spec, warn: false
+  def start(_type, _args), do: Syscrap.Supervisor.start_link
+
+  @doc """
+    Tell the world outside we are alive
+  """
+  def alive_loop(opts \\ []) do
+    # register the name if asked
+    if opts[:name], do: Process.register(self,opts[:name])
+
+    tmp_path = H.env(:tmp_path, "tmp") |> Path.expand
+    :os.cmd 'touch #{tmp_path}/alive'
+    :timer.sleep 5_000
+    alive_loop
+  end
+end
+
+defmodule Syscrap.Supervisor do
+  use Supervisor
+
+  def start_link(_args \\ []), do: Supervisor.start_link(__MODULE__, [], name: __MODULE__)
+
+  def init(_args) do
 
     # respond to harakiri restarts
     tmp_path = H.env(:tmp_path, "tmp") |> Path.expand
@@ -23,31 +43,12 @@ defmodule Syscrap do
                         size: 5,
                         max_overflow: 10 ]
 
-    # no auth, nothing needed by now
-    mongo_worker_opts = [ ]
-
     children = [  supervisor(Syscrap.Notificator, [[]]),
                   supervisor(Syscrap.Aggregator, [[]]),
                   supervisor(Syscrap.Reactor, [[]]),
-                  :poolboy.child_spec(:mongo_pool, mongo_pool_opts, mongo_worker_opts),
+                  :poolboy.child_spec(:mongo_pool, mongo_pool_opts, []),
                   worker(Task, [Syscrap,:alive_loop,[[name: :syscrap_alive_loop]]]) ]
 
-    # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
-    # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: Syscrap.Supervisor]
-    Supervisor.start_link(children, opts)
-  end
-
-  @doc """
-    Tell the world outside we are alive
-  """
-  def alive_loop(opts \\ []) do
-    # register the name if asked
-    if opts[:name], do: Process.register(self,opts[:name])
-
-    tmp_path = H.env(:tmp_path, "tmp") |> Path.expand
-    :os.cmd 'touch #{tmp_path}/alive'
-    :timer.sleep 5_000
-    alive_loop
+    supervise(children, strategy: :one_for_one)
   end
 end
