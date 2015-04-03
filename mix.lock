@@ -1,7 +1,7 @@
-%{"bottler": {:hex, :bottler, "0.3.0"},
+%{"bottler": {:hex, :bottler, "0.4.1"},
   "bson": {:hex, :bson, "0.4.2"},
   "gen_smtp": {:hex, :gen_smtp, "0.9.0"},
-  "harakiri": {:hex, :harakiri, "0.2.0"},
+  "harakiri": {:hex, :harakiri, "0.4.0"},
   "mongo": {:hex, :mongo, "0.5.0"},
   "poolboy": {:hex, :poolboy, "1.4.0"},
   "sshex": {:hex, :sshex, "1.0.0"}}
