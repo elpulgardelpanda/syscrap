@@ -10,19 +10,38 @@ defmodule Syscrap.Helpers do
   def env(app, key, default), do: Application.get_env(app, key, default)
 
   @doc """
-    Spit to logger, with proper margin and colors.
-    If you pass the `__ENV__` it will also print the location.
-
-    ```
-      Helpers.spit my_mystery_object, __ENV__
-    ```
+    Spit to logger any passed variable, with location information.
   """
-  def spit(obj, caller \\ nil) do
-    loc = case caller do
-      %{file: file, line: line} -> "\n\n#{file}:#{line}"
-      _ -> ""
+  defmacro spit(obj, inspect_opts \\ []) do
+    quote do
+      %{file: file, line: line} = __ENV__
+      [ :bright, :red, "\n\n#{file}:#{line}",
+        :normal, "\n\n#{inspect(unquote(obj),unquote(inspect_opts))}\n\n", :reset]
+      |> IO.ANSI.format(true) |> IO.puts
     end
-    "#{loc}\n\n#{inspect obj}\n\n" |> L.debug
   end
-end
 
+  @doc """
+    Print to stdout a _TODO_ message, with location information.
+  """
+  defmacro todo(msg \\ "") do
+    quote do
+      %{file: file, line: line} = __ENV__
+      [ :yellow, "\nTODO: #{file}:#{line} #{unquote(msg)}\n", :reset]
+      |> IO.ANSI.format(true) |> IO.puts
+    end
+  end
+
+  @doc """
+    Gets names for children in given supervisor. Children with no registered
+    name are not returned. List is sorted.
+  """
+  def named_children(supervisor) do
+    supervisor
+      |> Supervisor.which_children
+      |> Enum.map(fn({_,pid,_,_})-> Process.info(pid)[:registered_name] end)
+      |> Enum.filter(&(&1))
+      |> Enum.sort
+  end
+
+end
