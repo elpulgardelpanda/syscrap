@@ -29,7 +29,7 @@ defmodule Syscrap do
                   supervisor(Syscrap.Aggregator, [[]]),
                   supervisor(Syscrap.Reactor, [[]]),
                   :poolboy.child_spec(:mongo_pool, mongo_pool_opts, mongo_worker_opts),
-                  worker(Task, [Syscrap,:alive_loop,[]]) ]
+                  worker(Task, [Syscrap,:alive_loop,[[name: :syscrap_alive_loop]]]) ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options
@@ -40,7 +40,10 @@ defmodule Syscrap do
   @doc """
     Tell the world outside we are alive
   """
-  def alive_loop do
+  def alive_loop(opts \\ []) do
+    # register the name if asked
+    if opts[:name], do: Process.register(self,opts[:name])
+
     tmp_path = H.env(:tmp_path, "tmp") |> Path.expand
     :os.cmd 'touch #{tmp_path}/alive'
     :timer.sleep 5_000
