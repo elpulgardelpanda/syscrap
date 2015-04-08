@@ -30,7 +30,6 @@ defmodule SyscrapTest do
 
     # check named children are there
     named = H.named_children(supervisor)
-    H.spit named
     for child <- known_children, do: assert child in named
 
     # get every child
@@ -44,10 +43,7 @@ defmodule SyscrapTest do
       kids_count == supervisor |> Supervisor.which_children |> Enum.count
     end
 
-    # check named children are there too
-    named = H.named_children(supervisor)
-    H.spit named
-    H.spit supervisor |> Supervisor.which_children
-    for child <- known_children, do: H.wait_for &(assert &1 in named)
+    # check named children are there again too
+    H.wait_for fn -> named == H.named_children(supervisor) end
   end
 end
