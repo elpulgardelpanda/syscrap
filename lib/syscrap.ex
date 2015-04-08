@@ -49,6 +49,6 @@ defmodule Syscrap.Supervisor do
                   :poolboy.child_spec(:mongo_pool, mongo_pool_opts, []),
                   worker(Task, [Syscrap,:alive_loop,[[name: :syscrap_alive_loop]]]) ]
 
-    supervise(children, strategy: :one_for_one)
+    supervise(children, strategy: :one_for_one, max_restarts: Enum.count(children) + 1)
   end
 end

@@ -22,6 +22,6 @@ defmodule Syscrap.Aggregator do
       supervisor(Syscrap.Aggregator.Worker, [t], [id: t[:name]])
     end
 
-    supervise(children, strategy: :one_for_one)
+    supervise(children, strategy: :one_for_one, max_restarts: Enum.count(children) + 1)
   end
 end

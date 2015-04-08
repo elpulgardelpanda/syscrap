@@ -21,6 +21,6 @@ defmodule Syscrap.Reactor do
       worker(Syscrap.Reactor.Worker, [data], [id: r])
     end
 
-    supervise(children, strategy: :one_for_one)
+    supervise(children, strategy: :one_for_one, max_restarts: Enum.count(children) + 1)
   end
 end

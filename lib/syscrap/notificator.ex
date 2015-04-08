@@ -14,13 +14,13 @@ defmodule Syscrap.Notificator do
     alias Syscrap.Notificator.Notification, as: N
 
     # TODO: get pool size from config
-    pool_size = 5
+    pool_size = 2
 
     children = for i <- (0..pool_size) do
       id = "Notificator.Worker.#{to_string(i)}" |> String.to_atom
       worker(Syscrap.Notificator.Worker, [[name: id]], [id: id])
     end
 
-    supervise(children, strategy: :one_for_one)
+    supervise(children, strategy: :one_for_one, max_restarts: Enum.count(children) + 1)
   end
 end

@@ -9,6 +9,14 @@ defmodule SyscrapTest do
                                   Syscrap.Notificator, Syscrap.Reactor,
                                   :mongo_pool, :syscrap_alive_loop]
 
+    check_supervisor Syscrap.Aggregator, [:"Worker for name1",
+                                  :"Worker for name2", :"Worker for name3"]
+
+    check_supervisor Syscrap.Notificator, [:"Notificator.Worker.0",
+                            :"Notificator.Worker.1", :"Notificator.Worker.2"]
+
+    check_supervisor Syscrap.Reactor,
+                  [:"Worker for Elixir.Syscrap.Reactor.Reaction.Range"]
   end
 
   # Check given supervisor works.
@@ -22,6 +30,7 @@ defmodule SyscrapTest do
 
     # check named children are there
     named = H.named_children(supervisor)
+    H.spit named
     for child <- known_children, do: assert child in named
 
     # get every child
@@ -36,6 +45,9 @@ defmodule SyscrapTest do
     end
 
     # check named children are there too
-    for child <- known_children, do: assert child in named
+    named = H.named_children(supervisor)
+    H.spit named
+    H.spit supervisor |> Supervisor.which_children
+    for child <- known_children, do: H.wait_for &(assert &1 in named)
   end
 end
