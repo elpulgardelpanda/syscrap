@@ -67,4 +67,13 @@ defmodule Syscrap.Helpers do
       |> Enum.sort
   end
 
+  @doc """
+    Kill all of given supervisor's children
+  """
+  def kill_children(supervisor) do
+    children = supervisor |> Supervisor.which_children
+    for {_,pid,_,_} <- children, do: true = Process.exit(pid, :kill)
+    :ok
+  end
+
 end
