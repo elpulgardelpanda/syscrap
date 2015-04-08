@@ -6,7 +6,7 @@ defmodule Syscrap.Helpers do
     Convenience to get environment bits. Avoid all that repetitive
     `Application.get_env( :myapp, :blah, :blah)` noise.
   """
-  def env(key, default \\ nil), do: env(:syscrap, key, default)
+  def env(key, default \\ nil), do: env(Mix.Project.get!.project[:app], key, default)
   def env(app, key, default), do: Application.get_env(app, key, default)
 
   @doc """
@@ -29,6 +29,29 @@ defmodule Syscrap.Helpers do
       %{file: file, line: line} = __ENV__
       [ :yellow, "\nTODO: #{file}:#{line} #{unquote(msg)}\n", :reset]
       |> IO.ANSI.format(true) |> IO.puts
+    end
+  end
+
+  @doc """
+    Wait for given function to return true.
+    Optional `msecs` and `step`.
+    Be aware that exceptions raised and thrown messages by given `func` will be discarded.
+  """
+  def wait_for(func, msecs \\ 5_000, step \\ 100) do
+    res = try do
+      func.()
+    rescue
+      x -> nil
+    catch
+      :exit, x -> nil
+    end
+
+    if res do
+      :ok
+    else
+      if msecs <= 0, do: raise "Timeout!"
+      :timer.sleep step
+      wait_for func, msecs - step, step
     end
   end
 
