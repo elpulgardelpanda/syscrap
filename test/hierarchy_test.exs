@@ -1,6 +1,6 @@
 require Syscrap.Helpers, as: H
 
-defmodule SyscrapTest do
+defmodule HierarchyTest do
   use ExUnit.Case
 
   test "Hierarchy looks good" do
@@ -9,12 +9,15 @@ defmodule SyscrapTest do
                                   Syscrap.Notificator, Syscrap.Reactor,
                                   :mongo_pool, :syscrap_alive_loop]
 
+    # TODO: add Aggregator.Workers for each Target defined on DB
     check_supervisor Syscrap.Aggregator, [:"Worker for name1",
                                   :"Worker for name2", :"Worker for name3"]
 
+    # TODO: get notificator pool size from config
     check_supervisor Syscrap.Notificator, [:"Notificator.Worker.0",
                             :"Notificator.Worker.1", :"Notificator.Worker.2"]
 
+    # TODO: a way to get defined `reactions` ?
     check_supervisor Syscrap.Reactor,
                   [:"Worker for Elixir.Syscrap.Reactor.Reaction.Range"]
   end

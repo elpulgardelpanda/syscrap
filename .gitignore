@@ -32,5 +32,6 @@ public/system/*
 *.pid
 .emacs*
 config/private_config.exs
+.directory
 
 /rel

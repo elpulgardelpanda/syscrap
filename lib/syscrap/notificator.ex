@@ -21,6 +21,8 @@ defmodule Syscrap.Notificator do
       worker(Syscrap.Notificator.Worker, [[name: id]], [id: id])
     end
 
-    supervise(children, strategy: :one_for_one, max_restarts: Enum.count(children) + 1)
+    supervise(children, strategy: :one_for_one,
+                        max_restarts: Enum.count(children) + 1,
+                        max_seconds: 5)
   end
 end
