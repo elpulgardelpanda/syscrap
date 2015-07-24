@@ -8,15 +8,21 @@ defmodule HierarchyTest do
     check_supervisor Syscrap.Supervisor, [Syscrap.Aggregator,
                                   Syscrap.Notificator, Syscrap.Reactor,
                                   :mongo_pool, :syscrap_alive_loop]
+  end
 
+  test "Aggregator hierarchy looks good" do
     # TODO: add Aggregator.Workers for each Target defined on DB
     check_supervisor Syscrap.Aggregator, [:"Worker for name1",
                                   :"Worker for name2", :"Worker for name3"]
+  end
 
+  test "Notificator hierarchy looks good" do
     # TODO: get notificator pool size from config
     check_supervisor Syscrap.Notificator, [:"Notificator.Worker.0",
                             :"Notificator.Worker.1", :"Notificator.Worker.2"]
+  end
 
+  test "Reactor hierarchy looks good" do
     # TODO: a way to get defined `reactions` ?
     check_supervisor Syscrap.Reactor,
                   [:"Worker for Elixir.Syscrap.Reactor.Reaction.Range"]
