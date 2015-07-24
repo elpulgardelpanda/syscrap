@@ -1,4 +1,5 @@
 require Syscrap.Helpers, as: H
+require Syscrap.TestHelpers, as: TH
 
 defmodule HierarchyTest do
   use ExUnit.Case
@@ -11,9 +12,13 @@ defmodule HierarchyTest do
   end
 
   test "Aggregator hierarchy looks good" do
-    # TODO: add Aggregator.Workers for each Target defined on DB
-    check_supervisor Syscrap.Aggregator, [:"Worker for name1",
-                                  :"Worker for name2", :"Worker for name3"]
+    targets = [ %{target: "t1"},%{target: "t2"},%{target: "t3"} ]
+    TH.insert targets, "targets"
+
+    workers = for t <- targets, into: [], do:
+      String.to_atom("Worker for " <> t.target)
+
+    check_supervisor Syscrap.Aggregator, workers
   end
 
   test "Notificator hierarchy looks good" do
