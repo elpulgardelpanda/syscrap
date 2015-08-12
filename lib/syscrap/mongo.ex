@@ -1,3 +1,5 @@
+require Syscrap.Helpers, as: H
+
 defmodule Syscrap.Mongo do
   use GenServer
 
@@ -54,19 +56,33 @@ defmodule Syscrap.Mongo do
 
     If you prefer to use
     [transaction](https://github.com/devinus/poolboy/blob/94a3f7a481f36e71d5750f76fcc3205461d3feff/src/poolboy.erl#L71)
-    then you just give it a `fn` that it will receive a `worker`.
+    then you just give it a `fn` that will receive a `worker`.
 
     You can use that `worker` with `yield` to get a `Mongo.Collection`.
     Then you can use that collection freely. When you are done with it,
     `transaction` will properly release the worker into the pool for you.
+    All the way, you are protected inside a `try ... after` block, so the
+    worker is always returned to the pool.
 
     ```
     :poolboy.transaction(:mongo_pool, fn(worker) ->
       coll = worker |> yield db: 'syscrap', coll: 'test'
       MC.find(coll) |> Enum.to_list
       %{c: "blabla"} |> MC.insert_one(coll)
-      MC.find(coll) |> Enum.to_list
     end)
+    ```
+
+    ### Using `run`
+
+    If you just need to run some queries and then get a return value, you can
+    use `run`.
+
+    ```
+    result = SM.run("test", fn(coll) ->
+               MC.find(coll) |> Enum.to_list
+               %{c: "blabla"} |> MC.insert_one(coll)
+               MC.find(coll) |> Enum.to_list
+             end)
     ```
 
   """
@@ -87,11 +103,12 @@ defmodule Syscrap.Mongo do
   @doc """
     Request the connection to the worker, and get db/collection for given names.
   """
-  def yield(server, [coll: coll]), do: yield(server, [db: "syscrap", coll: coll])
-  def yield(server, [db: db, coll: coll]) do
+  def yield(server, opts) do
+    opts = [coll: "test", db: "syscrap"] |> Keyword.merge(opts)
+
     GenServer.call(server, :yield)
-    |> Mongo.db(db)
-    |> Mongo.Db.collection(coll)
+    |> Mongo.db(opts[:db])
+    |> Mongo.Db.collection(opts[:coll])
   end
 
   @doc """
@@ -100,11 +117,12 @@ defmodule Syscrap.Mongo do
     Returns requested Mongo collection, and the underlying worker.
     You should checkin that worker back to the pool using `release/1`.
   """
-  def get([coll: coll]), do: get(db: "syscrap", coll: coll)
-  def get([db: db, coll: coll]), do: get(db: db, coll: coll, pool: :mongo_pool)
-  def get([db: db, coll: coll, pool: pool]) do
-    w = :poolboy.checkout(pool)
-    coll = w |> yield db: db, coll: coll
+  def get(opts) do
+    defaults = [coll: "test", db: "syscrap", pool: :mongo_pool]
+    opts = defaults |> Keyword.merge(opts)
+
+    w = :poolboy.checkout(opts[:pool])
+    coll = w |> yield opts
     {coll,w}
   end
 
@@ -114,17 +132,50 @@ defmodule Syscrap.Mongo do
   def release(worker, pool \\ :mongo_pool), do: :poolboy.checkin(pool, worker)
 
   @doc """
-    Convenience function to perform a single query.
+    Convenience function to perform a single query inside a transaction.
+    See `run/2`.
+
+    ```
+      targets = SM.find("targets")
+    ```
   """
-  def find([coll: coll]), do: find(coll: coll, selector: %{})
-  def find([coll: coll, selector: selector]), do: find(db: "syscrap",
-          coll: coll, pool: :mongo_pool, selector: selector, projector: %{})
-  def find([db: db, coll: coll, pool: pool, selector: selector,
-          projector: projector]) do
-    {coll, worker} = get db: db, coll: coll
-    result = Mongo.Collection.find(coll, selector, projector) |> Enum.to_list
-    release worker, pool
-    result
+  def find(coll) when is_binary(coll), do: find(coll: coll)
+  def find(opts) do
+    defaults = [coll: "test", db: "syscrap", pool: :mongo_pool,
+                selector: %{}, projector: %{}]
+    opts = defaults |> Keyword.merge(opts)
+
+    run opts, fn(coll)->
+      Mongo.Collection.find(coll, opts[:selector], opts[:projector]) |> Enum.to_list
+    end
+  end
+
+  @doc """
+    Clean wrapper for a `:poolboy.transaction/2` over the default pool.
+    Gets a collection name, gets a handle to that collection using a pool worker,
+    and passes it to the given function.
+
+    Returns whatever the given function returns.
+
+    ```
+    SM.run("my_collection", fn(coll) ->
+      MC.find(coll) |> Enum.to_list
+      %{c: "blabla"} |> MC.insert_one(coll)
+      MC.find(coll) |> Enum.to_list
+    end)
+    ```
+
+    Always releases the worker back to the pool.
+  """
+  def run(coll, fun) when is_binary(coll), do: run([coll: coll], fun)
+  def run(opts, fun) do
+    defaults = [coll: "test", db: "syscrap", pool: :mongo_pool]
+    opts = defaults |> Keyword.merge(opts)
+
+    :poolboy.transaction(opts[:pool], fn(worker) ->
+      coll = worker |> yield opts
+      fun.(coll)
+    end)
   end
 
 end

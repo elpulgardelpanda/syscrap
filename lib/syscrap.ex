@@ -43,11 +43,13 @@ defmodule Syscrap.Supervisor do
                         size: 5,
                         max_overflow: 10 ]
 
-    children = [  supervisor(Syscrap.Notificator, [[]]),
+    children = [
+                  :poolboy.child_spec(:mongo_pool, mongo_pool_opts, []),
+                  supervisor(Syscrap.Notificator, [[]]),
                   supervisor(Syscrap.Aggregator, [[]]),
                   supervisor(Syscrap.Reactor, [[]]),
-                  :poolboy.child_spec(:mongo_pool, mongo_pool_opts, []),
-                  worker(Task, [Syscrap,:alive_loop,[[name: :syscrap_alive_loop]]]) ]
+                  worker(Task, [Syscrap,:alive_loop,[[name: :syscrap_alive_loop]]])
+              ]
 
     supervise(children, strategy: :one_for_one,
                         max_restarts: Enum.count(children) + 1,

@@ -13,19 +13,15 @@ defmodule Syscrap.TestHelpers do
     |> Mongo.Db.collection(name)
   end
 
-  def insert(docs, collname \\ "test")
   def insert(docs, collname) when is_binary(collname) do
     coll = get_coll collname
-    H.spit [docs, collname, coll]
     insert docs, coll
   end
-  def insert(doc, coll) when is_map(doc) do
-    H.spit [doc,coll]
-    Mongo.Collection.insert_one(doc,coll)
-  end
   def insert(docs, coll) when is_list(docs) do
-    H.spit [docs,coll]
     for d <- docs, do: insert(d, coll)
   end
+  def insert(doc, coll) when is_map(doc), do: Mongo.Collection.insert_one(doc,coll)
+
+  def drop(collname), do: collname |> get_coll |> Mongo.Collection.drop
 
 end

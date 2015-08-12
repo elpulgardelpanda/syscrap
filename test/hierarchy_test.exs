@@ -4,6 +4,11 @@ require Syscrap.TestHelpers, as: TH
 defmodule HierarchyTest do
   use ExUnit.Case
 
+  setup do
+    TH.drop "targets"
+    :ok
+  end
+
   test "Hierarchy looks good" do
     # look at main supervisor first
     check_supervisor Syscrap.Supervisor, [Syscrap.Aggregator,
@@ -12,7 +17,7 @@ defmodule HierarchyTest do
   end
 
   test "Aggregator hierarchy looks good" do
-    targets = [ %{target: "t1"},%{target: "t2"},%{target: "t3"} ]
+    targets = [ %{name: "t1"},%{name: "t2"},%{name: "t3"} ]
     TH.insert targets, "targets"
 
     workers = for t <- targets, into: [], do:
