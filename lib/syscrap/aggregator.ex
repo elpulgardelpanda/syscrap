@@ -13,17 +13,26 @@ defmodule Syscrap.Aggregator do
   end
 
   def init(_) do
-    children = for t <- find_all_targets do
-      H.spit t
-      supervisor(Syscrap.Aggregator.Worker, [t], [id: t[:name]])
-    end
-
-    supervise(children, strategy: :one_for_one,
-                        max_restarts: Enum.count(children) + 1,
-                        max_seconds: 5)
+    supervise([], strategy: :one_for_one,
+                  max_restarts: 3,
+                  max_seconds: 5)
   end
 
-  defp find_all_targets do
+  @doc """
+    Populator desired_children function
+  """
+  def desired_children do
+    H.spit Syscrap.Mongo.find("targets")
     Syscrap.Mongo.find("targets")
   end
+
+  @doc """
+    Populator child_spec function
+  """
+  def child_spec(data) do
+    name = String.to_atom("Worker for " <> data[:name])
+    data = Keyword.put(data, :name, name)
+    supervisor(Syscrap.Aggregator.Worker, [data], [id: data[:name]])
+  end
+
 end

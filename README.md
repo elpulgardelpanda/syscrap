@@ -27,47 +27,48 @@ git config branch.autosetuprebase always
 ## Map
 
 ```
-                                 +-----------------+
-                                 |Aggregator.Metric|
-                                 +--------+--------+
-                                          |
-                                 +--------+---------+     +--+
-                                 |Aggregator.Wrapper| ... |AW|
-                                 +--------+---------+     +-++
-                                          |                 |
-                                          +-----------------+
-    +----------------+                    |
-    |Reactor.Reaction|                +---+-------------+     +--+
-    +------+---------+                |Aggregator.Worker| ... |AW|
-           |                          +----+------------+     ++-+
-    +------+-------+     +--+              |                   |
-    |Reactor.Worker| ... |RW|              +-------------------+
-    +-----------+--+     +-++              |
-                |          |          +----+-----+
-                +---+------+      +---+Aggregator|
-                    |             |   +----------+
-                  +-+-----+       |
-                  |Reactor+----+  |   +------------------------+
-                  +-------+    |  |   |Notificator.Notification|
-                               |  |   +------+-----------------+
-                               |  |          |
-       +-----+     +-+         |  |   +------+-----------+    +--+
-       |Mongo| ... |M|         |  |   |Notificator.Worker|... |NW|
-       +--+--+     +++         |  |   +------+-----------+    +-++
-          |         |          |  |          |                  |
-          +---------+          |  |          +---+--------------+
-                    |          |  |              |
-              +-----+---+      |  |       +------+----+
-              |MongoPool|      |  |       |Notificator|
-              +-------+-+      |  |       +-----+-----+
-                      |        |  |             |
-    +---+  +------+   |      +-+--+--+          |     +--------+
-    |SSH|  |Logger|   +------+Syscrap+----------+     |Harakiri|
-    +-+-+  +--+---+          +-+-----+                +----+---+
-      |       |                |                           |
-      |       |         +------+----+                      |
-      +-------+---------+ Erlang VM +----------------------+
-                        +-----------+
+                              +-----------------+
+                              |Aggregator.Metric|
+                              +--------+--------+
+                                       |
+                              +--------+---------+     +--+
+                              |Aggregator.Wrapper| ... |AW|
+                              +--------+---------+     +-++
+                                       |                 |
+                                       +-----------------+
+ +----------------+                    |
+ |Reactor.Reaction|                +---+-------------+     +--+  
+ +------+---------+                |Aggregator.Worker| ... |AW|  
+        |                          +----+------------+     ++-+  
+ +------+-------+     +--+              |                   |
+ |Reactor.Worker| ... |RW|              +-------------------+
+ +-----------+--+     +-++              |
+             |          |          +----+-----+       +---------+
+             +---+------+      +---+Aggregator+-------+Populator|
+                 |             |   +----------+       +---------+
+               +-+-----+       |
+               |Reactor+----+  |   +------------------------+
+               +-------+    |  |   |Notificator.Notification|
+                            |  |   +------+-----------------+
+                            |  |          |
+    +-----+     +-+         |  |   +------+-----------+    +--+  
+    |Mongo| ... |M|         |  |   |Notificator.Worker|... |NW|  
+    +--+--+     +++         |  |   +------+-----------+    +-++  
+       |         |          |  |          |                  |
+       +---------+          |  |          +---+--------------+
+                 |          |  |              |
+           +-----+---+      |  |    +---------+-+
+           |MongoPool|      |  |    |Notificator+
+           +-------+-+      |  |    +--------+--+
+                   |        |  |             |
+ +---+  +------+   |      +-+--+--+          |     +--------+
+ |SSH|  |Logger|   +------+Syscrap+----------+     |Harakiri|
+ +-+-+  +--+---+          +-+-----+                +----+---+
+   |       |                |                           |
+   |       |         +------+----+                      |
+   +-------+---------+ Erlang VM +----------------------+
+                     +-----------+
+
 ```
 
 ## Application structure
@@ -76,13 +77,14 @@ The main supervisor ensures an `Aggregator`, a `Reactor`, a `Notificator`,
 and the Mongo pool, are all alive. The Erlang system also ensures
 [SSH](http://www.erlang.org/doc/man/ssh.html),
 [Logger](https://github.com/elixir-lang/elixir/tree/master/lib/logger) and
-[Harakiri](https://github.com/elpulgardelpanda/harakiri) are running.
+[Harakiri](https://github.com/rubencaro/harakiri) are running.
 
 
 ### Aggregation
 
 The `Aggregator` is a mere supervisor for every `Aggregator.Worker`. It keeps
-alive one and only one `Aggregator.Worker` for each monitored `Target`.
+alive one and only one `Aggregator.Worker` for each monitored `Target`. It uses
+a [Populator](https://github.com/rubencaro/populator) for this.
 
 An `Aggregator.Worker` supervises several `Aggregator.Wrapper` processes. Every
 `Aggregator.Worker` gets an open connection from the SSH application, and passes

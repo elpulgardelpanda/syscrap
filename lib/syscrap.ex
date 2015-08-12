@@ -1,4 +1,5 @@
 require Syscrap.Helpers, as: H
+alias Syscrap.Aggregator, as: Agg
 
 defmodule Syscrap do
   @moduledoc """
@@ -43,12 +44,21 @@ defmodule Syscrap.Supervisor do
                         size: 5,
                         max_overflow: 10 ]
 
+    # configuration for the Aggregator populator
+    agg_args = [ name: :syscrap_aggregator_populator,
+                           step: 30000,
+                           run_args: [ Agg,
+                                       &Agg.child_spec/1,
+                                       &Agg.desired_children/0,
+                                       [stationary: Mix.env == :test] ] ]  # stationary only on test environment
+
     children = [
                   :poolboy.child_spec(:mongo_pool, mongo_pool_opts, []),
+                  supervisor(Agg, [[]]),
                   supervisor(Syscrap.Notificator, [[]]),
-                  supervisor(Syscrap.Aggregator, [[]]),
                   supervisor(Syscrap.Reactor, [[]]),
-                  worker(Task, [Syscrap,:alive_loop,[[name: :syscrap_alive_loop]]])
+                  worker(Task, [Syscrap,:alive_loop,[[name: :syscrap_alive_loop]]]),
+                  worker(Task, [Populator.Looper,:run,[agg_args]], [id: agg_args[:name]])
               ]
 
     supervise(children, strategy: :one_for_one,

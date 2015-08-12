@@ -7,8 +7,7 @@ defmodule Syscrap.Aggregator.Worker do
   """
 
   def start_link(opts) do
-    name = String.to_atom("Worker for " <> opts[:name])
-    Supervisor.start_link(__MODULE__, opts, [name: name])
+    Supervisor.start_link(__MODULE__, opts, [name: opts[:name]])
   end
 
   def init(opts) do
