@@ -18,11 +18,11 @@ defmodule Syscrap.Mixfile do
     [ {:gen_smtp, "0.9.0"},
       {:mongo, "~> 0.5"},
       {:poolboy, "~> 1.4.0"},
-      {:harakiri, "0.5.1"},
-      {:sshex, "1.3.0"},
+      {:harakiri, "0.6.0"},
+      {:sshex, "2.0.0"},
       # {:bottler, "0.5.0"},
       {:bottler, github: "rubencaro/bottler"}, # for now get it from master
-      {:populator, "0.2.0"} ]
+      {:populator, "0.4.0"} ]
   end
 
   defp get_version_number do

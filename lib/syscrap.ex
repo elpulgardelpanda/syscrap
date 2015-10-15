@@ -33,10 +33,8 @@ defmodule Syscrap.Supervisor do
 
     # respond to harakiri restarts
     tmp_path = H.env(:tmp_path, "tmp") |> Path.expand
-    File.mkdir_p! tmp_path
     Harakiri.add %{ paths: ["#{tmp_path}/restart"],
-                    app: :syscrap,
-                    action: :restart }
+                    action: :restart }, create_paths: true
 
     # Here are my pool options
     mongo_pool_opts = [ name: {:local, :mongo_pool},
