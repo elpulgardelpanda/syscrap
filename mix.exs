@@ -19,10 +19,11 @@ defmodule Syscrap.Mixfile do
       {:mongo, "~> 0.5"},
       {:poolboy, "~> 1.4.0"},
       {:harakiri, "0.6.0"},
-      {:sshex, "2.0.0"},
+      {:sshex, "2.0.1"},
       # {:bottler, "0.5.0"},
       {:bottler, github: "rubencaro/bottler"}, # for now get it from master
-      {:populator, "0.4.0"} ]
+      {:populator, github: "rubencaro/populator"}, # for now get it from master
+    ]
   end
 
   defp get_version_number do
