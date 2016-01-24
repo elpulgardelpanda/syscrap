@@ -1,3 +1,4 @@
+
 # Syscrap
 
 Syscrap aims to be a systems monitor application with a minimum logic on the
@@ -165,6 +166,8 @@ namespace.
 
 ## TODOs
 
+* Consider using https://github.com/ericmj/mongodb
+* Pass minimal hierarchy test
 * ...
 
 
