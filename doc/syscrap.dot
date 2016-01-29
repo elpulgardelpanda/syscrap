@@ -43,9 +43,9 @@ digraph syscrap {
       ComposedReactions [label="Composed"];
       subgraph cluster_ReactionTypes{
         label="Reaction Types";
-        Notify, Script, VisitURL, ComposedReactions;
+        Range, Presence, Regexp, ComposedReactions;
       }
-      Reaction -> Notify, Script, VisitURL, ComposedReactions;
+      Reaction -> Range, Presence, Regexp, ComposedReactions;
     }
     ReactorWorker:1, ReactorWorker:n -> Reaction [dir=none,color=gray80];
   }
@@ -105,13 +105,6 @@ digraph syscrap {
     \"updated\":ISODate(\"...\"),\n
     \"options\":\{ \"limits\": \{ ... \} \} \}"];
 
-    ReactionOptions [shape=Mrecord, label="ReactionOptions |
-    \{\"reaction\":\"range\",\n
-    \"updated\":ISODate(\"...\"),\n
-    \"options\":\{\n
-      \"metrics\": \[ \"cpu\", \"ram\"\],\n
-      \"ram_max\": 0.8, ... \} \}"];
-
     ReactionTargets [shape=Mrecord, label="ReactionTargets |
     \{\"reaction\":\"range\",\n
     \"target\":\"8.8.8.8\",\n
@@ -125,13 +118,14 @@ digraph syscrap {
   { # read
     edge [style=dashed,dir=back,color="#00aa0055"];
     Aggregator:e -> Targets;
-    AggregatorWorker:1:e, AggregatorWorker:n:e -> AggregationOptions, Targets;
+    AggregatorWorker:1:e, AggregatorWorker:n:e -> AggregationOptions;
     Notification -> Notifications;
     Reaction -> Aggregations;
-    ReactorWorker:1:e, ReactorWorker:n:e -> ReactionOptions, ReactionTargets;
+    Reactor -> ReactionTargets;
   }
   { # write
     edge [style=dashed,color="#0000ff33"];
+    AggregatorWorker:1:e, AggregatorWorker:n:e -> Targets;
     Metric -> Aggregations;
     Reaction -> Notifications;
   }

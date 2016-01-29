@@ -12,8 +12,7 @@ Queries principales previstas en el sistema, y dónde:
 * INSERT Aggregation for a metric,target,type,tag (Aggregator.Metric.* loop)
 * DELETE size capped Aggregations for a metric,target,type,tag
 (Aggregator.Metric.* loop)
-* FIND the ReactionOptions for a reaction (Reactor.Worker start)
-* FIND all ReactionTargets for a reaction (Reactor.Worker start)
+* FIND all ReactionTargets (Reactor start)
 * FIND last Aggregation for a metric,target,type (Reactor.Reaction.* loop)
 * FINDandMODIFY some Aggregations for a metric,target,type (Reactor.Reaction.*
 loop)
@@ -21,27 +20,6 @@ loop)
 * FINDandMODIFY first pending or stranded Notification (Notificator.Worker loop)
 * FIND NotificationOptions for a target,type (Notificator.Worker loop)
 * DELETE Notification (Notificator.Worker loop)
-
-
-## ReactionOptions
-
-
-Key fields:  reaction
-Data fields:  updated, options
-
-
-Example:
-```
-    { "reaction":"range",
-      "updated":ISODate("2015-02-15T09:16:24.848Z"),
-      "options":{
-        "metrics":["cpu","ram","disk"],
-        "ram_max":0.8
-      } }
-```
-
-Collection para mantener las reactions y sus opciones. Pueden no existir. Los
-valores por defecto en código deberían ser razonables.
 
 
 ## ReactionTargets
