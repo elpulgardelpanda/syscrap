@@ -66,6 +66,23 @@ Target. Opcionalmente se pueden fijar opciones para ese target en particular.
 Por defecto se usarán las opciones del Reaction.
 
 
+## Notifications
+
+Key fields:    reaction, target, type
+Data fields:    payload, updated
+
+
+Email Notification example:
+```
+    { "reaction":"range","target":"8.8.8.8","type":"email",
+      "payload":{"from":"asdf@sdf","to":"asfgadfg@sdfgsd",
+                 "subject":"...","body":"..."},
+      "updated":ISODate("2015-02-15T09:16:24.848Z") }
+```
+
+El módulo Reactor.Reaction genera un Notification en base de datos cuando se cumplen las condiciones para ello, usando los módulos del namespace Notification para ello. El módulo Notificator.Worker lee y consume la Notification de base de datos usando los mismo módulos.
+
+
 ## Aggregations
 
 

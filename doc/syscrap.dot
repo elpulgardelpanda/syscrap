@@ -1,0 +1,144 @@
+  # render: dot -O -Tpng syscrap.dot
+  # auto-render: https://gist.github.com/rubencaro/75e7b163665b47e0094a
+digraph syscrap {
+  # layout=neato;
+  # splines=true;
+  overlap=false;
+  rankdir="LR";
+  node [shape=box];
+
+  # aggregation
+  subgraph aggregation{
+    node [style=filled,fillcolor="#ff000022"];
+    {rank=same; AggregatorPopulator, Aggregator;}
+    AggregatorWorker [shape=record,label="<1>Worker 1|...|<n>Worker N"];
+    AggregatorWrapper [shape=record,label="<1>Wrapper 1|...|<n>Wrapper M"];
+    AggregatorWorker:1 -> AggregatorWrapper:1, AggregatorWrapper:n;
+    Aggregator -> AggregatorWorker:1, AggregatorWorker:n;
+    Aggregator -> AggregatorPopulator [dir=none,style=dotted];
+    { # namespace dependency only
+      edge [dir=none,color=gray80];
+      node [shape=Mrecord];
+      AggregatorWrapper:1, AggregatorWrapper:n -> Metric;
+      subgraph cluster_MetricTypes{
+        label="Metric Types";
+        Logs, Vitals, Traffic, ProofOfLife;
+        Vitals -> CPU, RAM, Swap, Disk;
+        ProofOfLife -> File, Port, Socket;
+      }
+      Metric -> Logs, Vitals, Traffic, ProofOfLife;
+    }
+  }
+
+  # reaction
+  subgraph reaction{
+    node [style=filled,fillcolor="#ffff0022"];
+    ReactorWorker [shape=record,label="<1>Worker 1|...|<n>Worker N"];
+    {rank=same; ReactorPopulator, Reactor;}
+    Reactor -> ReactorWorker:1, ReactorWorker:n;
+    Reactor -> ReactorPopulator [dir=none,style=dotted];
+    { # namespace dependency only
+      edge [dir=none,color=gray80];
+      node [shape=Mrecord];
+      ComposedReactions [label="Composed"];
+      subgraph cluster_ReactionTypes{
+        label="Reaction Types";
+        Notify, Script, VisitURL, ComposedReactions;
+      }
+      Reaction -> Notify, Script, VisitURL, ComposedReactions;
+    }
+    ReactorWorker:1, ReactorWorker:n -> Reaction [dir=none,color=gray80];
+  }
+
+  # notification
+  subgraph notification{
+    node [style=filled,fillcolor="#00ffff22"];
+    NotificatorWorker [shape=record,label="<1>Worker 1|...|<n>Worker N"];
+    Notificator -> NotificatorWorker:1, NotificatorWorker:n;
+    { # namespace dependency only
+      edge [dir=none,color=gray80];
+      node [shape=Mrecord];
+      ComposedNotifications [label="Composed"];
+      subgraph cluster_NotificationTypes{
+        label="Notification Types";
+        Email, API, RawMessageQueue, ComposedNotifications;
+        API -> Slack, Telegram, Asana, OtherAPI;
+        RawMessageQueue -> Mongo, OtherQueue;
+      }
+      Notification -> Email, API, RawMessageQueue, ComposedNotifications;
+    }
+    NotificatorWorker:1, ReactorWorker:1, NotificatorWorker:n, ReactorWorker:n -> Notification [dir=none,color=gray80];
+  }
+
+  # db
+  MongoConnection [shape=record,label="<1>Connection 1|...|<n>Connection N"];
+  MongoPool -> MongoConnection:1, MongoConnection:n;
+
+  { node [color=gray,fillcolor=gray95,style=filled];
+    Aggregations [shape=Mrecord, label="Aggregations |
+    \{\"metric\":\"log_error\",\n
+    \"target\":\"8.8.8.8\",\n
+    \"type\":\"event\",\n
+    \"tag\":20150215091624,\n
+    \"updated\":ISODate(\"...\"),\n
+    \"value\":\{ ... \} \}"];
+
+    Notifications [shape=Mrecord, label="Notifications |
+    \{\"reaction\":\"range\",\n
+    \"target\":\"8.8.8.8\",\n
+    \"type\":\"email\",\n
+    \"updated\":ISODate(\"...\"),\n
+    \"payload\":\{ ... \} \}"];
+
+    Targets [shape=Mrecord, label="Targets |
+    \{\"target\":\"8.8.8.8\",\n
+    \"user\":\"myuser\",\n
+    \"updated\":ISODate(\"...\"),\n
+    \"detected_specs\":\{\n
+    \"cpu_cores\": 4,\n
+    \"disk\": 50000,\n
+    \"ram\": 4096, ... \} \}"];
+
+    AggregationOptions [shape=Mrecord, label="AggregationOptions |
+    \{\"metric\":\"cpu\",\n
+    \"target\":\"generic\",\n
+    \"updated\":ISODate(\"...\"),\n
+    \"options\":\{ \"limits\": \{ ... \} \} \}"];
+
+    ReactionOptions [shape=Mrecord, label="ReactionOptions |
+    \{\"reaction\":\"range\",\n
+    \"updated\":ISODate(\"...\"),\n
+    \"options\":\{\n
+      \"metrics\": \[ \"cpu\", \"ram\"\],\n
+      \"ram_max\": 0.8, ... \} \}"];
+
+    ReactionTargets [shape=Mrecord, label="ReactionTargets |
+    \{\"reaction\":\"range\",\n
+    \"target\":\"8.8.8.8\",\n
+    \"updated\":ISODate(\"...\"),\n
+    \"options\":\{\n
+      \"metrics\": \[ \"cpu\", \"ram\"\],\n
+      \"ram_max\": 0.8, ... \} \}"];
+  }
+
+  # DB actions
+  { # read
+    edge [style=dashed,dir=back,color="#00aa0055"];
+    Aggregator:e -> Targets;
+    AggregatorWorker:1:e, AggregatorWorker:n:e -> AggregationOptions, Targets;
+    Notification:1:e, Notification:n:e -> Notifications;
+    Reaction:1:e, Reaction:n:e -> Aggregations;
+    ReactorWorker:1:e, ReactorWorker:n:e -> ReactionOptions, ReactionTargets;
+  }
+  { # write
+    edge [style=dashed,color="#0000ff33"];
+    AggregatorMetric:1:e, AggregatorMetric:n:e -> Aggregations;
+    Reaction:1:e, Reaction:n:e -> Notifications;
+  }
+
+  {rank=same; Syscrap -> Harakiri -> SSH -> Logger [dir=none,style=dotted];}
+
+  # {rank=same; AggregatorPopulator, Aggregator, ReactorPopulator, Reactor, Notificator, AliveLoop, MongoPool;}
+
+  Syscrap -> AggregatorPopulator, Aggregator, ReactorPopulator, Reactor, Notificator, AliveLoop, MongoPool;
+}
