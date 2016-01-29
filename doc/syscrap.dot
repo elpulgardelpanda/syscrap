@@ -126,14 +126,14 @@ digraph syscrap {
     edge [style=dashed,dir=back,color="#00aa0055"];
     Aggregator:e -> Targets;
     AggregatorWorker:1:e, AggregatorWorker:n:e -> AggregationOptions, Targets;
-    Notification:1:e, Notification:n:e -> Notifications;
-    Reaction:1:e, Reaction:n:e -> Aggregations;
+    Notification -> Notifications;
+    Reaction -> Aggregations;
     ReactorWorker:1:e, ReactorWorker:n:e -> ReactionOptions, ReactionTargets;
   }
   { # write
     edge [style=dashed,color="#0000ff33"];
-    AggregatorMetric:1:e, AggregatorMetric:n:e -> Aggregations;
-    Reaction:1:e, Reaction:n:e -> Notifications;
+    Metric -> Aggregations;
+    Reaction -> Notifications;
   }
 
   {rank=same; Syscrap -> Harakiri -> SSH -> Logger [dir=none,style=dotted];}
