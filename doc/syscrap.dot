@@ -67,7 +67,7 @@ digraph syscrap {
       }
       Notification -> Email, API, RawMessageQueue, ComposedNotifications;
     }
-    NotificatorWorker:1, ReactorWorker:1, NotificatorWorker:n, ReactorWorker:n -> Notification [dir=none,color=gray80];
+    NotificatorWorker:1, NotificatorWorker:n -> Notification [dir=none,color=gray80];
   }
 
   # db

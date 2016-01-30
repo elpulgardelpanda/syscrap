@@ -96,7 +96,7 @@ stored value. But also can be much more complex. It may need to spawn and
 supervise its own pool of processes. That's totally up to the `Reaction`
 implementation.
 
-At any point of the process, a `Reaction` or one of its children can
+At any point of the process, a `Reaction` or one of its derivatives can
 queue a notification on the `Notificator`, read/write DB data using the `Mongo`
 pool.
 
