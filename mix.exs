@@ -16,12 +16,10 @@ defmodule Syscrap.Mixfile do
 
   defp deps do
     [ {:gen_smtp, "0.9.0"},
-      # {:mongo, "~> 0.5"},
       {:poolboy, "~> 1.5"},
       {:mongodb, "~> 0.1"},
-      {:harakiri, "0.6.0"},
       {:sshex, "2.0.1"},
-      # {:bottler, "0.5.0"},
+      {:harakiri, github: "rubencaro/harakiri"}, # for now get it from master
       {:bottler, github: "rubencaro/bottler"}, # for now get it from master
       {:populator, github: "rubencaro/populator"}, # for now get it from master
     ]

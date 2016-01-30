@@ -21,7 +21,7 @@ defmodule Syscrap.Aggregator do
   @doc """
     Populator desired_children function
   """
-  def desired_children do
+  def desired_children(_) do
     H.spit Syscrap.Mongo.find("targets")
     Syscrap.Mongo.find("targets")
   end
@@ -29,7 +29,7 @@ defmodule Syscrap.Aggregator do
   @doc """
     Populator child_spec function
   """
-  def child_spec(data) do
+  def child_spec(data, _) do
     name = String.to_atom("Worker for " <> data[:name])
     data = Keyword.put(data, :name, name)
     supervisor(Syscrap.Aggregator.Worker, [data], [id: data[:name]])

@@ -32,7 +32,7 @@ defmodule HierarchyTest do
   end
 
   test "Notificator hierarchy looks good" do
-    check_supervisor Syscrap.Notificator, count: H.env(:notificator_worker_count)
+    check_supervisor Syscrap.Notificator, [], count: H.env(:notificator_worker_count)
   end
 
   test "Reactor hierarchy looks good" do
@@ -50,8 +50,7 @@ defmodule HierarchyTest do
   # Check every `named_children` is there.
   # Optional `count` to check for total count of children when not all are named.
   #
-  defp check_supervisor(supervisor, opts \\ []), do: check_supervisor(supervisor,[],opts)
-  defp check_supervisor(supervisor, named_children \\ [], opts \\ []) do
+  defp check_supervisor(supervisor, named_children, opts \\ []) do
 
     opts = opts |> H.defaults(count: named_children |> Enum.count)
 

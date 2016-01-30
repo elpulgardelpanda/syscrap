@@ -1,4 +1,13 @@
-require Syscrap.Helpers, as: H
+defmodule Syscrap.MongoPool do
+
+  # opts = [name: __MODULE__, adapter: Mongo.Pool.Poolboy]
+  #        |> Keyword.merge(H.env(:mongo_pool_opts))
+
+  opts = [name: __MODULE__, adapter: Mongo.Pool.Poolboy,
+                  size: 5, max_overflow: 10]
+
+  use Mongo.Pool, opts
+end
 
 defmodule Syscrap.Mongo do
   use GenServer
@@ -122,7 +131,7 @@ defmodule Syscrap.Mongo do
     opts = defaults |> Keyword.merge(opts)
 
     w = :poolboy.checkout(opts[:pool])
-    coll = w |> yield opts
+    coll = w |> yield(opts)
     {coll,w}
   end
 
@@ -173,7 +182,7 @@ defmodule Syscrap.Mongo do
     opts = defaults |> Keyword.merge(opts)
 
     :poolboy.transaction(opts[:pool], fn(worker) ->
-      coll = worker |> yield opts
+      coll = worker |> yield(opts)
       fun.(coll)
     end)
   end

@@ -36,28 +36,19 @@ defmodule Syscrap.Supervisor do
     Harakiri.add %{ paths: ["#{tmp_path}/restart"],
                     action: :restart }, create_paths: true
 
-    # Here are my pool options
-    mongo_pool_opts = [ name: {:local, :mongo_pool},
-                        worker_module: Syscrap.Mongo,
-                        size: 5,
-                        max_overflow: 10 ]
-
     # configuration for the Aggregator populator
-    agg_args = [ name: Syscrap.AggregatorPopulator,
-                 step: 30000,
-                 run_args: [ Agg,
-                             &Agg.child_spec/1,
-                             &Agg.desired_children/0,
-                             [stationary: Mix.env == :test] ] ]  # stationary only on test environment
+    agg_args = [name: Syscrap.AggregatorPopulator,
+                step: 30000,
+                run_args: [Agg,
+                           &Agg.child_spec/2,
+                           &Agg.desired_children/1]]
 
-    children = [
-                  :poolboy.child_spec(:mongo_pool, mongo_pool_opts, []),
-                  supervisor(Agg, [[]]),
-                  supervisor(Syscrap.Notificator, [[]]),
-                  supervisor(Syscrap.Reactor, [[]]),
-                  worker(Task, [Syscrap,:alive_loop,[[name: :syscrap_alive_loop]]]),
-                  worker(Task, [Populator.Looper,:run,[agg_args]], [id: agg_args[:name]])
-              ]
+    children = [supervisor(Syscrap.MongoPool, [[database: "syscrap"]]),
+                supervisor(Agg, [[]]),
+                supervisor(Syscrap.Notificator, [[]]),
+                supervisor(Syscrap.Reactor, [[]]),
+                worker(Task, [Syscrap,:alive_loop, [[name: :syscrap_alive_loop]]]),
+                worker(Task, [Populator.Looper, :run, [agg_args]], [id: agg_args[:name]])]
 
     supervise(children, strategy: :one_for_one,
                         max_restarts: Enum.count(children) + 1,
