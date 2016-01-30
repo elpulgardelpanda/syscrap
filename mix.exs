@@ -4,7 +4,7 @@ defmodule Syscrap.Mixfile do
   def project do
     [app: :syscrap,
      version: get_version_number,
-     elixir: "~> 1.0",
+     elixir: "~> 1.2",
      deps: deps]
   end
 
@@ -16,8 +16,9 @@ defmodule Syscrap.Mixfile do
 
   defp deps do
     [ {:gen_smtp, "0.9.0"},
-      {:mongo, "~> 0.5"},
-      {:poolboy, "~> 1.4.0"},
+      # {:mongo, "~> 0.5"},
+      {:poolboy, "~> 1.5"},
+      {:mongodb, "~> 0.1"},
       {:harakiri, "0.6.0"},
       {:sshex, "2.0.1"},
       # {:bottler, "0.5.0"},

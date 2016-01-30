@@ -11,58 +11,58 @@ defmodule HierarchyTest do
 
   test "Hierarchy looks good" do
     # look at main supervisor first
-    check_supervisor Syscrap.Supervisor, [Syscrap.Aggregator,
-                                  Syscrap.Notificator, Syscrap.Reactor,
-                                  :mongo_pool, :syscrap_alive_loop]
+    check_supervisor Syscrap.Supervisor,
+                     [Syscrap.Aggregator, Syscrap.AggregatorPopulator,
+                      Syscrap.Reactor, Syscrap.ReactorPopulator,
+                      Syscrap.Notificator, Syscrap.AliveLoop, Syscrap.MongoPool]
   end
 
   test "Aggregator hierarchy looks good" do
-    targets = [ %{name: "t1"},%{name: "t2"},%{name: "t3"} ]
+    targets = [%{target: "1.1.1.1"},
+               %{target: "1.1.1.2"},
+               %{target: "1.1.1.3"}]
     TH.insert targets, "targets"
 
     workers = for t <- targets, into: [], do:
-      String.to_atom("Worker for " <> t.target)
+      String.to_atom("Aggregator for " <> t.target)
 
     check_supervisor Syscrap.Aggregator, workers
+
+    H.todo "Check Wrapper hierarchy too"
   end
 
   test "Notificator hierarchy looks good" do
-    # TODO: get notificator pool size from config
-    check_supervisor Syscrap.Notificator, [:"Notificator.Worker.0",
-                            :"Notificator.Worker.1", :"Notificator.Worker.2"]
+    check_supervisor Syscrap.Notificator, count: H.env(:notificator_worker_count)
   end
 
   test "Reactor hierarchy looks good" do
-    # TODO: a way to get defined `reactions` ?
-    check_supervisor Syscrap.Reactor,
-                  [:"Worker for Elixir.Syscrap.Reactor.Reaction.Range"]
+    reaction_targets = [%{reaction: "Range",target: "1.1.1.1"},
+                        %{reaction: "Range",target: "1.1.1.2"},
+                        %{reaction: "Range",target: "1.1.1.3"}]
+    TH.insert reaction_targets, "reaction_targets"
+
+    workers = for t <- reaction_targets, into: [], do:
+      String.to_atom(t.reaction <> " for " <> t.target)
+
+    check_supervisor Syscrap.Reactor, workers
   end
 
-  # Check given supervisor works.
-  # Check every `known_children` is there. Then kill all its children
-  # and check they are replaced with new ones.
+  # Check every `named_children` is there.
+  # Optional `count` to check for total count of children when not all are named.
   #
-  # Note that `max_restarts` must be greater than the total number
-  # of children under the supervisor, or this will fail.
-  #
-  defp check_supervisor(supervisor, known_children \\ []) do
+  defp check_supervisor(supervisor, opts \\ []), do: check_supervisor(supervisor,[],opts)
+  defp check_supervisor(supervisor, named_children \\ [], opts \\ []) do
 
-    # check named children are there
-    named = H.named_children(supervisor)
-    for child <- known_children, do: assert child in named
+    opts = opts |> H.defaults(count: named_children |> Enum.count)
 
-    # get every child
-    kids_count = supervisor |> Supervisor.which_children |> Enum.count
-
-    # kill em all
-    :ok = H.kill_children supervisor
-
-    # grows up new children
+    # check every children is up
     H.wait_for fn ->
-      kids_count == supervisor |> Supervisor.which_children |> Enum.count
+      opts[:count] == supervisor |> Supervisor.which_children |> Enum.count
     end
 
-    # check named children are there again too
-    H.wait_for fn -> named == H.named_children(supervisor) end
+    # check all named children are there
+    named = H.named_children(supervisor)
+    for child <- named_children, do: assert child in named
+
   end
 end

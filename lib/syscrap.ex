@@ -43,12 +43,12 @@ defmodule Syscrap.Supervisor do
                         max_overflow: 10 ]
 
     # configuration for the Aggregator populator
-    agg_args = [ name: :syscrap_aggregator_populator,
-                           step: 30000,
-                           run_args: [ Agg,
-                                       &Agg.child_spec/1,
-                                       &Agg.desired_children/0,
-                                       [stationary: Mix.env == :test] ] ]  # stationary only on test environment
+    agg_args = [ name: Syscrap.AggregatorPopulator,
+                 step: 30000,
+                 run_args: [ Agg,
+                             &Agg.child_spec/1,
+                             &Agg.desired_children/0,
+                             [stationary: Mix.env == :test] ] ]  # stationary only on test environment
 
     children = [
                   :poolboy.child_spec(:mongo_pool, mongo_pool_opts, []),

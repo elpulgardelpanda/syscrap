@@ -1,8 +1,10 @@
 %{"bottler": {:git, "https://github.com/rubencaro/bottler.git", "38c9e82e4eb850dbe02e8024761e6a03a396096a", []},
   "bson": {:hex, :bson, "0.4.4"},
+  "connection": {:hex, :connection, "1.0.2"},
   "gen_smtp": {:hex, :gen_smtp, "0.9.0"},
   "harakiri": {:hex, :harakiri, "0.6.0"},
   "mongo": {:hex, :mongo, "0.5.2"},
-  "poolboy": {:hex, :poolboy, "1.4.2"},
+  "mongodb": {:hex, :mongodb, "0.1.1"},
+  "poolboy": {:hex, :poolboy, "1.5.1"},
   "populator": {:git, "https://github.com/rubencaro/populator.git", "7850123a7fd6a5f52023699e3f3e35c6bdd9f123", []},
   "sshex": {:hex, :sshex, "2.0.1"}}
