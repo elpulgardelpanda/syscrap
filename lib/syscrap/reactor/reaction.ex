@@ -4,12 +4,10 @@ defmodule Syscrap.Reactor.Reaction do
     The Reaction behaviour specification.
   """
 
-  use Behaviour
-
   @doc """
-    Start the main checking loop.
+    The main checking loop.
     Receives a Keyword list as passed from the Worker.
   """
-  defcallback start_checking( list(Keyword) ) :: none
+  @callback check_loop( list(Keyword) ) :: none
 
 end

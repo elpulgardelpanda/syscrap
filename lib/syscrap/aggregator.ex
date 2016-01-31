@@ -32,9 +32,9 @@ defmodule Syscrap.Aggregator do
   def child_spec(data, _) do
     data = data |> H.defaults(%{"name" => data["target"]})
 
-    H.spit data
     name = String.to_atom("Worker for " <> data["name"])
     data = Keyword.put(data, "name", name)
+    H.spit data
     supervisor(Syscrap.Aggregator.Worker, [data], [id: data["name"]])
   end
 

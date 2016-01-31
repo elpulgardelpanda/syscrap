@@ -5,17 +5,12 @@ defmodule Syscrap.Reactor.Worker do
     Process responsible for firing a specific alert for the given `Reaction`.
   """
 
-  def start_link(opts) do
-    name = String.to_atom("Worker for #{to_string(opts[:reaction])}")
-    GenServer.start_link(__MODULE__, opts, [name: name])
+  def start_link(args) do
+    GenServer.start_link(__MODULE__, args, [name: args[:name]])
   end
 
-  def init(opts) do
-
-    # DB: FIND all ReactionTargets for this reaction
-    # DB: FIND the ReactionOptions for this reaction
-
-    opts[:reaction].start_checking(opts)
-    {:ok, opts}
+  def init(args) do
+    {:ok, _} = Task.spawn_link(args[:reaction], :check_loop, args)
+    {:ok, args}
   end
 end

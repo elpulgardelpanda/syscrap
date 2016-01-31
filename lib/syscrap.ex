@@ -1,5 +1,6 @@
 require Syscrap.Helpers, as: H
-alias Syscrap.Aggregator, as: Agg
+alias Syscrap.Aggregator, as: A
+alias Syscrap.Reactor, as: R
 
 defmodule Syscrap do
   @moduledoc """
@@ -39,15 +40,23 @@ defmodule Syscrap.Supervisor do
     # configuration for the Aggregator populator
     agg_args = [name: Syscrap.AggregatorPopulator,
                 step: 30000,
-                run_args: [Agg,
-                           &Agg.child_spec/2,
-                           &Agg.desired_children/1]]
+                run_args: [A,
+                           &A.child_spec/2,
+                           &A.desired_children/1]]
+
+    # configuration for the Reactor populator
+    react_args = [name: Syscrap.ReactorPopulator,
+                step: 30000,
+                run_args: [R,
+                           &R.child_spec/2,
+                           &R.desired_children/1]]
 
     children = [supervisor(Syscrap.MongoPool, [H.env(:mongo_db_opts)]),
-                supervisor(Agg, [[]]),
+                supervisor(A, [[]]),
                 supervisor(Syscrap.Notificator, [[]]),
-                supervisor(Syscrap.Reactor, [[]]),
+                supervisor(R, [[]]),
                 worker(Task, [Syscrap,:alive_loop, [[name: :syscrap_alive_loop]]]),
+                worker(Task, [Populator.Looper, :run, [react_args]], [id: react_args[:name]]),
                 worker(Task, [Populator.Looper, :run, [agg_args]], [id: agg_args[:name]])]
 
     supervise(children, strategy: :one_for_one,

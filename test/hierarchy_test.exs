@@ -55,6 +55,7 @@ defmodule HierarchyTest do
 
     # check every children is up
     H.wait_for fn ->
+      H.spit supervisor |> Supervisor.which_children
       opts[:count] == supervisor |> Supervisor.which_children |> Enum.count
     end
 
