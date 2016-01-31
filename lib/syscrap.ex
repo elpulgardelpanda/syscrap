@@ -43,7 +43,7 @@ defmodule Syscrap.Supervisor do
                            &Agg.child_spec/2,
                            &Agg.desired_children/1]]
 
-    children = [supervisor(Syscrap.MongoPool, [[database: "syscrap"]]),
+    children = [supervisor(Syscrap.MongoPool, [H.env(:mongo_db_opts)]),
                 supervisor(Agg, [[]]),
                 supervisor(Syscrap.Notificator, [[]]),
                 supervisor(Syscrap.Reactor, [[]]),

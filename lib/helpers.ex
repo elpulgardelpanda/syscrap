@@ -1,4 +1,4 @@
-require Logger, as: L
+alias Keyword, as: K
 
 defmodule Syscrap.Helpers do
 
@@ -66,8 +66,13 @@ defmodule Syscrap.Helpers do
         |> here_i_need_defaults
 
   """
+  def defaults(args, defs) when is_map(args) and is_map(defs) do
+    defs |> Map.merge(args)
+  end
   def defaults(args, defs) do
-    defs |> Keyword.merge(args)
+    if not([K.keyword?(args), K.keyword?(defs)] === [true, true]),
+      do: raise(ArgumentError, "Both arguments must be Keyword lists.")
+    defs |> K.merge(args)
   end
 
   @doc """
@@ -79,9 +84,9 @@ defmodule Syscrap.Helpers do
     res = try do
       func.()
     rescue
-      x -> nil
+      _ -> nil
     catch
-      :exit, x -> nil
+      :exit, _ -> nil
     end
 
     if res do

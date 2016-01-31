@@ -1,11 +1,10 @@
 require Syscrap.Helpers, as: H
-require Syscrap.TestHelpers, as: TH
 
 defmodule HierarchyTest do
   use ExUnit.Case
 
   setup do
-    TH.drop "targets"
+    H.Db.drop "targets"
     :ok
   end
 

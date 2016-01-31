@@ -1,7 +1,5 @@
 ExUnit.start()
 
-require Syscrap.Helpers, as: H
-
 defmodule Syscrap.TestHelpers do
 
   ######
