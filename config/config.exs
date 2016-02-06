@@ -10,18 +10,23 @@ use Mix.Config
 
 # Sample configuration:
 #
-#     config :logger, :console,
-#       level: :info,
-#       format: "$date $time [$level] $metadata$message\n",
-#       metadata: [:user_id]
+# config :logger,
+#   utc_log: true,
+#   handle_otp_reports: true,
+#   handle_sasl_reports: true
 
 # This file is not on the repo. Look at private_config.exs.example for a
 # starting point.
 
 config :syscrap,
   notificator_worker_count: 1, # by now, no concurrency problems
-  mongo_pool_opts: [size: 5, max_overflow: 10],
-  mongo_db_opts: [database: "syscrap"]
+  mongo_pool_opts:    [ name: {:local, Syscrap.MongoPool},
+                        worker_module: Syscrap.MongoWorker,
+                        size: 5,
+                        max_overflow: 10 ],
+  mongo_db_opts:      [database: "syscrap"],
+  aggregator_popopts: [step: 3000],
+  reactor_popopts:    [step: 3000]
 
 # Add configuration based on env
 import_config "#{Mix.env}.exs"

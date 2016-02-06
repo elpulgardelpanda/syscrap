@@ -1,10 +1,12 @@
 require Syscrap.Helpers, as: H
+require Syscrap.TestHelpers, as: TH
 
 defmodule HierarchyTest do
   use ExUnit.Case
 
   setup do
-    H.Db.drop "targets"
+    TH.Db.drop "targets"
+    TH.Db.drop "reaction_targets"
     :ok
   end
 
@@ -13,7 +15,7 @@ defmodule HierarchyTest do
     check_supervisor Syscrap.Supervisor,
                      [Syscrap.Aggregator, Syscrap.AggregatorPopulator,
                       Syscrap.Reactor, Syscrap.ReactorPopulator,
-                      Syscrap.Notificator, Syscrap.AliveLoop, Syscrap.MongoPool.Sup]
+                      Syscrap.Notificator, Syscrap.AliveLoop, Syscrap.MongoPool]
   end
 
   # test "Aggregator hierarchy looks good" do
@@ -38,7 +40,7 @@ defmodule HierarchyTest do
     reaction_targets = [%{reaction: "Range", target: "1.1.1.1"},
                         %{reaction: "Range", target: "1.1.1.2"},
                         %{reaction: "Range", target: "1.1.1.3"}]
-    H.Db.insert reaction_targets, "reaction_targets"
+    TH.Db.insert reaction_targets, "reaction_targets"
 
     workers = for t <- reaction_targets, into: [], do:
       String.to_atom(t.reaction <> " for " <> t.target)

@@ -22,7 +22,7 @@ defmodule Syscrap.Reactor do
     Populator desired_children function
   """
   def desired_children(_) do
-    H.spit H.Db.find("reaction_targets")
+    # H.spit H.Db.find("reaction_targets")
     H.Db.find("reaction_targets")
   end
 
@@ -31,10 +31,9 @@ defmodule Syscrap.Reactor do
   """
   def child_spec(data, _) do
     args = [data: data,
-            name: String.to_atom("#{data["reaction"]} for #{data["target"]}"),
-            reaction: get_reaction_module(data["reaction"])]
+            name: String.to_atom("#{data[:reaction]} for #{data[:target]}"),
+            reaction: get_reaction_module(data[:reaction])]
 
-    H.spit args
     supervisor(Syscrap.Reactor.Worker, [args], [id: args[:name]])
   end
 
@@ -43,7 +42,7 @@ defmodule Syscrap.Reactor do
   #
   defp get_reaction_module(reaction) do
     try do
-      String.to_existing_atom "Syscrap.Reactor.Reaction.#{reaction}"
+      String.to_existing_atom "Elixir.Syscrap.Reactor.Reaction.#{reaction}"
     rescue
       ArgumentError -> Syscrap.Reactor.Reaction.Undefined
     end

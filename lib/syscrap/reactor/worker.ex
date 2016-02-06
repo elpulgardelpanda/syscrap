@@ -1,3 +1,5 @@
+require Syscrap.Helpers, as: H
+
 defmodule Syscrap.Reactor.Worker do
   use GenServer
 
@@ -10,7 +12,7 @@ defmodule Syscrap.Reactor.Worker do
   end
 
   def init(args) do
-    {:ok, _} = Task.spawn_link(args[:reaction], :check_loop, args)
+    Task.async(args[:reaction], :check_loop, [args])
     {:ok, args}
   end
 end

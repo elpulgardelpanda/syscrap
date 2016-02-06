@@ -1,3 +1,6 @@
+require Logger, as: L
+require Syscrap.Helpers, as: H
+
 defmodule Syscrap.Reactor.Reaction.Range do
 
   @moduledoc """
@@ -9,11 +12,14 @@ defmodule Syscrap.Reactor.Reaction.Range do
 
   @behaviour Syscrap.Reactor.Reaction
 
-  def start_checking(opts) do
-
+  def check_loop(args) do
+    H.spit("Running Range Reaction!!")
     # DB: FIND last Aggregation for a metric,target,type
     # DB: FINDandMODIFY some Aggregations for a metric,target,type
     # DB: INSERT Notification for a target,type
-
+    :timer.sleep(1000)
+    check_loop(args)
   end
+
+
 end

@@ -123,8 +123,8 @@ namespace.
 
 ## TODOs
 
-* Consider using https://github.com/ericmj/mongodb
 * Pass minimal hierarchy test
+* Consider using https://github.com/ericmj/mongodb when it matures
 * ...
 
 

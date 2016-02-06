@@ -39,23 +39,19 @@ defmodule Syscrap.Supervisor do
                     action: :restart }, create_paths: true
 
     # configuration for the Aggregator populator
-    agg_args = [name: Syscrap.AggregatorPopulator,
-                step: 30000,
-                run_args: [A,
-                           &A.child_spec/2,
-                           &A.desired_children/1]]
+    agg_args = H.env(:aggregator_popopts)
+               |> Keyword.merge(name: Syscrap.AggregatorPopulator,
+                                run_args: [A, &A.child_spec/2, &A.desired_children/1])
 
     # configuration for the Reactor populator
-    react_args = [name: Syscrap.ReactorPopulator,
-                step: 30000,
-                run_args: [R,
-                           &R.child_spec/2,
-                           &R.desired_children/1]]
+    react_args = H.env(:reactor_popopts) 
+               |> Keyword.merge(name: Syscrap.ReactorPopulator,
+                                run_args: [R, &R.child_spec/2, &R.desired_children/1])
 
-    children = [supervisor(Syscrap.MongoPool, [H.env(:mongo_db_opts)]),
-                supervisor(A, [[]]),
+    children = [:poolboy.child_spec(Syscrap.MongoPool, H.env(:mongo_pool_opts), []),
+                supervisor(Syscrap.Aggregator, [[]]),
                 supervisor(Syscrap.Notificator, [[]]),
-                supervisor(R, [[]]),
+                supervisor(Syscrap.Reactor, [[]]),
                 worker(Task, [Syscrap, :alive_loop, [[name: Syscrap.AliveLoop]]]),
                 worker(Task, [Populator.Looper, :run, [react_args]], [id: react_args[:name]]),
                 worker(Task, [Populator.Looper, :run, [agg_args]], [id: agg_args[:name]])]

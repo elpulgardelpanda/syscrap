@@ -22,7 +22,7 @@ defmodule Syscrap.Aggregator do
     Populator desired_children function
   """
   def desired_children(_) do
-    H.spit H.Db.find("targets")
+    # H.spit H.Db.find("targets")
     H.Db.find("targets")
   end
 
