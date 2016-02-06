@@ -24,6 +24,7 @@ defmodule Syscrap.Reactor do
   def desired_children(_) do
     # H.spit H.Db.find("reaction_targets")
     H.Db.find("reaction_targets")
+    |> Enum.map(fn(rt)-> Map.put(rt, :name, String.to_atom("#{rt.reaction} for #{rt.target}")) end)
   end
 
   @doc """
@@ -31,7 +32,7 @@ defmodule Syscrap.Reactor do
   """
   def child_spec(data, _) do
     args = [data: data,
-            name: String.to_atom("#{data[:reaction]} for #{data[:target]}"),
+            name: data[:name],
             reaction: get_reaction_module(data[:reaction])]
 
     supervisor(Syscrap.Reactor.Worker, [args], [id: args[:name]])
