@@ -18,4 +18,14 @@ defmodule Syscrap.Helpers.Db do
 
   def drop(coll), do: delete_many(coll)
 
+  def insert_many(coll, docs, opts \\ []),
+    do: M.insert_many(P, coll, docs, opts)
+
+  @doc """
+    Inverted order of args to allow piping of docs:
+
+    `mydocs |> Db.insert("mycoll")`
+  """
+  def insert(docs, coll, opts \\ []), do: insert_many(coll, docs, opts)
+
 end

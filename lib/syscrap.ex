@@ -28,7 +28,8 @@ end
 defmodule Syscrap.Supervisor do
   use Supervisor
 
-  def start_link(_args \\ []), do: Supervisor.start_link(__MODULE__, [], name: __MODULE__)
+  def start_link(_args \\ []),
+    do: Supervisor.start_link(__MODULE__, [], name: __MODULE__)
 
   def init(_args) do
 
@@ -55,12 +56,10 @@ defmodule Syscrap.Supervisor do
                 supervisor(A, [[]]),
                 supervisor(Syscrap.Notificator, [[]]),
                 supervisor(R, [[]]),
-                worker(Task, [Syscrap,:alive_loop, [[name: :syscrap_alive_loop]]]),
+                worker(Task, [Syscrap, :alive_loop, [[name: Syscrap.AliveLoop]]]),
                 worker(Task, [Populator.Looper, :run, [react_args]], [id: react_args[:name]]),
                 worker(Task, [Populator.Looper, :run, [agg_args]], [id: agg_args[:name]])]
 
-    supervise(children, strategy: :one_for_one,
-                        max_restarts: Enum.count(children) + 1,
-                        max_seconds: 5)
+    supervise(children, strategy: :one_for_one)
   end
 end

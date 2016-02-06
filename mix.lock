@@ -6,5 +6,5 @@
   "mongo": {:hex, :mongo, "0.5.2"},
   "mongodb": {:hex, :mongodb, "0.1.1"},
   "poolboy": {:hex, :poolboy, "1.5.1"},
-  "populator": {:git, "https://github.com/rubencaro/populator.git", "7850123a7fd6a5f52023699e3f3e35c6bdd9f123", []},
+  "populator": {:git, "https://github.com/rubencaro/populator.git", "a67f101341dd29abb438d4e5ad7e0f4e75768304", []},
   "sshex": {:hex, :sshex, "2.0.1"}}

@@ -1,3 +1,5 @@
+require Syscrap.Helpers, as: H
+
 defmodule Syscrap.Notificator do
   use Supervisor
 
@@ -10,13 +12,10 @@ defmodule Syscrap.Notificator do
     Supervisor.start_link(__MODULE__, opts, [name: __MODULE__])
   end
 
-  def init(opts) do
-    alias Syscrap.Notificator.Notification, as: N
+  def init(_) do
+    pool_size = H.env(:notificator_worker_count)
 
-    # TODO: get pool size from config
-    pool_size = 2
-
-    children = for i <- (0..pool_size) do
+    children = for i <- (0..pool_size-1) do
       id = "Notificator.Worker.#{to_string(i)}" |> String.to_atom
       worker(Syscrap.Notificator.Worker, [[name: id]], [id: id])
     end
