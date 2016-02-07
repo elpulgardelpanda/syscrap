@@ -12,17 +12,12 @@ defmodule Syscrap.Reactor do
     Supervisor.start_link(__MODULE__, opts, [name: __MODULE__])
   end
 
-  def init(_) do
-    supervise([], strategy: :one_for_one,
-                  max_restarts: 3,
-                  max_seconds: 5)
-  end
+  def init(_), do: supervise([], strategy: :one_for_one)
 
   @doc """
     Populator desired_children function
   """
   def desired_children(_) do
-    # H.spit H.Db.find("reaction_targets")
     H.Db.find("reaction_targets")
     |> Enum.map(fn(rt)-> Map.put(rt, :name, String.to_atom("#{rt.reaction} for #{rt.target}")) end)
   end

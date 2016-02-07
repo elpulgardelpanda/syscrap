@@ -18,19 +18,19 @@ defmodule HierarchyTest do
                       Syscrap.Notificator, Syscrap.AliveLoop, Syscrap.MongoPool]
   end
 
-  # test "Aggregator hierarchy looks good" do
-  #   targets = [%{target: "1.1.1.1"},
-  #              %{target: "1.1.1.2"},
-  #              %{target: "1.1.1.3"}]
-  #   TH.insert targets, "targets"
-  #
-  #   workers = for t <- targets, into: [], do:
-  #     String.to_atom("Aggregator for " <> t.target)
-  #
-  #   check_supervisor Syscrap.Aggregator, workers
-  #
-  #   H.todo "Check Wrapper hierarchy too"
-  # end
+  test "Aggregator hierarchy looks good" do
+    targets = [%{target: "1.1.1.1"},
+               %{target: "1.1.1.2"},
+               %{target: "1.1.1.3"}]
+    TH.Db.insert targets, "targets"
+
+    workers = for t <- targets, into: [], do:
+      String.to_atom("Aggregator for " <> t.target)
+
+    check_supervisor Syscrap.Aggregator, workers
+
+    H.todo "Check Wrapper hierarchy too"
+  end
 
   test "Notificator hierarchy looks good" do
     check_supervisor Syscrap.Notificator, [], count: H.env(:notificator_worker_count)
@@ -57,7 +57,6 @@ defmodule HierarchyTest do
 
     # check every children is up
     H.wait_for fn ->
-      H.spit supervisor |> Supervisor.which_children
       opts[:count] == supervisor |> Supervisor.which_children |> Enum.count
     end
 

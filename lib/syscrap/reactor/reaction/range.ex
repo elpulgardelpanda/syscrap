@@ -13,7 +13,6 @@ defmodule Syscrap.Reactor.Reaction.Range do
   @behaviour Syscrap.Reactor.Reaction
 
   def check_loop(args) do
-    H.spit("Running Range Reaction!!")
     # DB: FIND last Aggregation for a metric,target,type
     # DB: FINDandMODIFY some Aggregations for a metric,target,type
     # DB: INSERT Notification for a target,type
