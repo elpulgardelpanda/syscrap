@@ -37,4 +37,15 @@ defmodule Syscrap.Aggregator.Worker do
 
     supervise(children, strategy: :one_for_one)
   end
+
+  # Get the actual `Metric` module from given string,
+  # or else return `Syscrap.Aggregator.Metric.Undefined` and log the issue.
+  #
+  defp get_metric_module(metric) do
+    try do
+      String.to_existing_atom "Elixir.Syscrap.Aggregator.Metric.#{metric}"
+    rescue
+      ArgumentError -> Syscrap.Aggregator.Metric.Undefined
+    end
+  end
 end

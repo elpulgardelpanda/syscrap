@@ -1,5 +1,5 @@
-  # render: dot -O -Tpng syscrap.dot
-  # auto-render: https://gist.github.com/rubencaro/75e7b163665b47e0094a
+# render: dot -O -Tpng syscrap.dot
+# auto-render: https://gist.github.com/rubencaro/75e7b163665b47e0094a
 digraph syscrap {
   # layout=neato;
   # splines=true;
@@ -117,7 +117,7 @@ digraph syscrap {
   # DB actions
   { # read
     edge [style=dashed,dir=back,color="#00aa0055"];
-    Aggregator:e -> Targets;
+    Aggregator:n -> Targets;
     AggregatorWorker:1:e, AggregatorWorker:n:e -> AggregationOptions;
     Notification -> Notifications;
     Reaction -> Aggregations;
@@ -125,10 +125,11 @@ digraph syscrap {
   }
   { # write
     edge [style=dashed,color="#0000ff33"];
-    AggregatorWorker:1:e, AggregatorWorker:n:e -> Targets;
-    Metric -> Aggregations;
+    Metric -> Aggregations, Targets;
     Reaction -> Notifications;
   }
+
+  {rank=same; AggregatorWorker, Targets}
 
   {rank=same; Syscrap -> Harakiri -> SSH -> Logger [dir=none,style=dotted];}
 

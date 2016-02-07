@@ -34,7 +34,7 @@ defmodule Syscrap.Reactor do
   end
 
   # Get the actual `Reaction` module from given string,
-  # or else return `Syscrap.Reactor.Reaction.Undefined` and log the issue.
+  # or else return `Syscrap.Reactor.Reaction.Undefined` which will log the issue.
   #
   defp get_reaction_module(reaction) do
     try do

@@ -19,9 +19,9 @@ defmodule HierarchyTest do
   end
 
   test "Aggregator hierarchy looks good" do
-    targets = [%{target: "1.1.1.1"},
-               %{target: "1.1.1.2"},
-               %{target: "1.1.1.3"}]
+    targets = [%{target: "1.1.1.1", user: "myuser"},
+               %{target: "1.1.1.2", user: "myuser"},
+               %{target: "1.1.1.3", user: "myuser"}]
     TH.Db.insert targets, "targets"
 
     workers = for t <- targets, into: [], do:
