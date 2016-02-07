@@ -1,12 +1,12 @@
-defmodule Syscrap.Aggregator.Metric.Vitals do
+defmodule Syscrap.Aggregator.Metric.Vitals.CPU do
 
   @moduledoc """
-    Metric that gathers general vitals information, like CPU, RAM, swap & disk.
+    Metric that gathers CPU information
   """
 
   @behaviour Syscrap.Aggregator.Metric
 
-  def start_gathering(opts) do
+  def gather_loop(opts) do
 
     # DB: INSERT Aggregation for a metric,target,type,tag
     # DB: DELETE size capped Aggregations for a metric,target,type,tag

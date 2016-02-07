@@ -29,7 +29,10 @@ defmodule Syscrap.TestHelpers.Db do
   @doc """
     * `collname` must be a binary with the name of the collection
   """
-  def drop(collname), do: collname |> get_coll |> MC.drop
+  def drop(colls) when is_list(colls),
+    do: colls |> Enum.each(&drop/1)
+  def drop(collname),
+    do: collname |> get_coll |> MC.drop
 
   defp get_coll(name) do
     dbname = H.env(:mongo_db_opts)[:database]

@@ -12,7 +12,7 @@ defmodule Syscrap.Helpers.Db do
 
 
   @doc """
-    Simple find query.
+    Simple find query. Returns a list.
 
     ```
       targets = H.Db.find("targets")

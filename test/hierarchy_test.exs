@@ -5,8 +5,7 @@ defmodule HierarchyTest do
   use ExUnit.Case
 
   setup do
-    TH.Db.drop "targets"
-    TH.Db.drop "reaction_targets"
+    TH.Db.drop ["targets", "reaction_targets", "aggregation_options"]
     :ok
   end
 
@@ -19,17 +18,35 @@ defmodule HierarchyTest do
   end
 
   test "Aggregator hierarchy looks good" do
+    # add some targets
     targets = [%{target: "1.1.1.1", user: "myuser"},
                %{target: "1.1.1.2", user: "myuser"},
                %{target: "1.1.1.3", user: "myuser"}]
     TH.Db.insert targets, "targets"
 
-    workers = for t <- targets, into: [], do:
-      String.to_atom("Aggregator for " <> t.target)
+    # expected worker names
+    workers = [:"Aggregator for 1.1.1.1",
+               :"Aggregator for 1.1.1.2",
+               :"Aggregator for 1.1.1.3"]
 
+    # add some metrics for some targets
+    aggopts = [%{target: "1.1.1.1", metrics: %{"Vitals.CPU": %{}}},
+               %{target: "1.1.1.2", metrics: %{"Vitals.CPU": %{}, "Logs": %{}, "Traffic": %{}}}]
+    TH.Db.insert aggopts, "aggregation_options"
+
+    # expected wrapper names
+    wrappers1 = [:"Vitals.CPU for 1.1.1.1"]
+    wrappers2 = [:"Vitals.CPU for 1.1.1.2",
+                 :"Logs for 1.1.1.2",
+                 :"Traffic for 1.1.1.2" ]
+
+    # check all workers are there
     check_supervisor Syscrap.Aggregator, workers
 
-    H.todo "Check Wrapper hierarchy too"
+    # check all wrappers are there
+    check_supervisor :"Aggregator for 1.1.1.1", wrappers1
+    check_supervisor :"Aggregator for 1.1.1.2", wrappers2
+    check_supervisor :"Aggregator for 1.1.1.3", []
   end
 
   test "Notificator hierarchy looks good" do

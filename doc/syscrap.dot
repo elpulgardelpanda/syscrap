@@ -76,7 +76,7 @@ digraph syscrap {
 
   { node [color=gray,fillcolor=gray95,style=filled];
     Aggregations [shape=Mrecord, label="Aggregations |
-    \{\"metric\":\"log_error\",\n
+    \{\"metric\":\"Logs\",\n
     \"target\":\"8.8.8.8\",\n
     \"type\":\"event\",\n
     \"tag\":20150215091624,\n
@@ -100,18 +100,17 @@ digraph syscrap {
     \"ram\": 4096, ... \} \}"];
 
     AggregationOptions [shape=Mrecord, label="AggregationOptions |
-    \{\"metric\":\"cpu\",\n
-    \"target\":\"generic\",\n
+    \{\"target\":\"8.8.8.8\",\n
     \"updated\":ISODate(\"...\"),\n
-    \"options\":\{ \"limits\": \{ ... \} \} \}"];
+    \"metrics\":\{ \"Vitals.CPU\": \{ ... \} \} \}"];
 
     ReactionTargets [shape=Mrecord, label="ReactionTargets |
-    \{\"reaction\":\"range\",\n
+    \{\"reaction\":\"Range\",\n
     \"target\":\"8.8.8.8\",\n
     \"updated\":ISODate(\"...\"),\n
-    \"options\":\{\n
-      \"metrics\": \[ \"cpu\", \"ram\"\],\n
-      \"ram_max\": 0.8, ... \} \}"];
+    \"metrics\":\{\n
+      \"Vitals.CPU\": \{ \"max\": 0.8, \"...\"\},\n
+      \"Vitals.RAM\": ... \} \}"];
   }
 
   # DB actions

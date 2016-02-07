@@ -1,3 +1,4 @@
+require Syscrap.Helpers, as: H
 require Logger, as: L
 
 defmodule Syscrap.Aggregator.Metric.Undefined do
@@ -17,7 +18,7 @@ defmodule Syscrap.Aggregator.Metric.Undefined do
   @behaviour Syscrap.Aggregator.Metric
 
   def gather_loop(args) do
-    L.error("Did not found any Metric module for '#{inspect args[:data]}'")
+    L.error("Did not found any Metric module for '#{args[:options][:metric_name]}'")
     :timer.sleep(600000)
     gather_loop(args)
   end

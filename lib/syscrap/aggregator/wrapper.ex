@@ -5,13 +5,13 @@ defmodule Syscrap.Aggregator.Wrapper do
     Process responsible for gathering a specific metric for the given `Target`.
   """
 
-  def start_link(opts) do
-    name = String.to_atom("#{opts[:metric]} for #{opts[:name]}")
-    GenServer.start_link(__MODULE__, opts, [name: name])
+  def start_link(args) do
+    name = String.to_atom("#{args[:options][:metric_name]} for #{args[:target]}")
+    GenServer.start_link(__MODULE__, args, [name: name])
   end
 
-  def init(opts) do
-    opts[:metric].start_gathering(opts)
-    {:ok, opts}
+  def init(args) do
+    Task.async(args[:metric], :gather_loop, [args])
+    {:ok, args}
   end
 end

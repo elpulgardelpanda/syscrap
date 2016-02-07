@@ -1,3 +1,5 @@
+require Syscrap.Helpers, as: H
+
 defmodule Syscrap.Aggregator.Worker do
   use Supervisor
 
@@ -13,29 +15,26 @@ defmodule Syscrap.Aggregator.Worker do
   def init(opts) do
     alias Syscrap.Aggregator.Metric, as: M
 
-    # TODO: get `target_metrics` from db
-    target_metrics = ["Vitals","Traffic","POL.File"]
+    # retrieve aggregation_options for this target
+    aggopts = get_aggopts(opts)
 
-    # TODO: a way to get `all_metrics` ?
-    all_metrics = [ M.Vitals, M.Traffic, M.Logs,
-                    M.POL.File, M.POL.Port, M.POL.Socket ]
+    # get SSH connection with the target
+    H.todo "get SSH connection and add it to data being passed to wrappers"
+    ssh = :future_ssh_handle
 
-    metrics = Enum.filter(all_metrics, fn(m) ->
-                            String.contains?(to_string(m),target_metrics)
-                          end)
+    # build children specs based on all that
+    children = build_children_specs(opts, aggopts[:metrics], ssh)
 
-    # DB: FIND all AggregationOptions for a target
-    # DB: UPDATE detected_specs for a Target
+    # go on
+    supervise( children, strategy: :one_for_one )
+  end
 
-    # TODO: get SSH connection and add it to data being passed to wrappers
-
-    children = for m <- metrics do
-      data = [metric: m, name: opts[:name]]
-      # TODO: include specific metric options for this target
-      worker(Syscrap.Aggregator.Wrapper, [data], [id: data[:metric]])
-    end
-
-    supervise(children, strategy: :one_for_one)
+  # Get aggregation_options for this target from DB.
+  # Always returns a usable map, even when no result is found on db.
+  #
+  defp get_aggopts(opts) do
+    H.Db.find("aggregation_options", %{"target": opts[:data][:target]})
+    |> Enum.at(0, %{metrics: %{}})
   end
 
   # Get the actual `Metric` module from given string,
@@ -46,6 +45,34 @@ defmodule Syscrap.Aggregator.Worker do
       String.to_existing_atom "Elixir.Syscrap.Aggregator.Metric.#{metric}"
     rescue
       ArgumentError -> Syscrap.Aggregator.Metric.Undefined
+    end
+  end
+
+  # Add useful metadata to given options Map.
+  # Receives also the key (the Metric name from db).
+  # Returns a single Map with all data included.
+  #
+  defp add_metadata(key, options) do
+    options |> Map.merge(%{metric_name: key})
+  end
+
+  # Given db metrics definition, returns a map of
+  # metric modules as keys and a map with their options as values.
+  #
+  defp parse_metrics(db_data) do
+    db_data
+    |> Enum.map(fn({k,v})-> {get_metric_module(k), add_metadata(k,v)} end)
+    |> Enum.into(%{})
+  end
+
+  # Given db metrics definition and ssh handle,
+  # returns list of children specs for the supervisor.
+  #
+  defp build_children_specs(opts, metrics, ssh) do
+    for {m, o} <- parse_metrics(metrics) do
+      data = [target: opts[:data][:target],
+              metric: m, options: o, ssh: ssh]
+      worker(Syscrap.Aggregator.Wrapper, [data], [id: data[:metric]])
     end
   end
 end
