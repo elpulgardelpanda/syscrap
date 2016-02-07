@@ -19,7 +19,7 @@ defmodule Syscrap.Aggregator do
   """
   def desired_children(_) do
     H.Db.find("targets")
-    |> Enum.map(fn(t)-> Map.put(t, :name, String.to_atom("Aggregator for #{t.target}")) end)
+    |> add_worker_names
   end
 
   @doc """
@@ -30,6 +30,13 @@ defmodule Syscrap.Aggregator do
             name: data[:name]]
 
     supervisor(Syscrap.Aggregator.Worker, [args], [id: args[:name]])
+  end
+
+  defp add_worker_names(workers) do
+    workers |> Enum.map( fn(t) ->
+      name = String.to_atom("Aggregator for #{t.target}")
+      Map.put(t, :name, name)
+    end )
   end
 
 end

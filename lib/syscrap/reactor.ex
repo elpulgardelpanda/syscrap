@@ -19,7 +19,7 @@ defmodule Syscrap.Reactor do
   """
   def desired_children(_) do
     H.Db.find("reaction_targets")
-    |> Enum.map(fn(rt)-> Map.put(rt, :name, String.to_atom("#{rt.reaction} for #{rt.target}")) end)
+    |> add_worker_names
   end
 
   @doc """
@@ -42,6 +42,13 @@ defmodule Syscrap.Reactor do
     rescue
       ArgumentError -> Syscrap.Reactor.Reaction.Undefined
     end
+  end
+
+  defp add_worker_names(workers) do
+    workers |> Enum.map( fn(rt) ->
+      name = String.to_atom("#{rt.reaction} for #{rt.target}")
+      Map.put(rt, :name, name)
+    end )
   end
 
 end
