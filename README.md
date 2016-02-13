@@ -1,5 +1,6 @@
 
 # Syscrap
+[![Build Status](https://travis-ci.org/rubencaro/syscrap.svg?branch=master)](https://travis-ci.org/rubencaro/syscrap)
 
 Syscrap aims to be a systems monitor application with a minimum logic on the monitored machines. The figure is a scraper. Surgically visit the machine, collect data, and leave.
 
@@ -83,7 +84,6 @@ Notifications should ensure the message is actually sent, implement retry logic,
 
 ## TODOs
 
-* Add to travis
 * Think about distribution / replication
 * SSH connection for each Wrapper
 * Generate notifications when hierarchy finds trouble
