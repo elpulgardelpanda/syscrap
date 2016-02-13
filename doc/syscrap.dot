@@ -61,11 +61,11 @@ digraph syscrap {
       ComposedNotifications [label="Composed"];
       subgraph cluster_NotificationTypes{
         label="Notification Types";
-        Email, API, RawMessageQueue, ComposedNotifications;
+        Email, API, MessageQueue, ComposedNotifications;
         API -> Slack, Telegram, Asana, OtherAPI;
-        RawMessageQueue -> Mongo, OtherQueue;
+        MessageQueue -> Mongo, OtherQueue;
       }
-      Notification -> Email, API, RawMessageQueue, ComposedNotifications;
+      Notification -> Email, API, MessageQueue, ComposedNotifications;
     }
     NotificatorWorker:1, NotificatorWorker:n -> Notification [dir=none,color=gray80];
   }
