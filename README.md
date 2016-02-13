@@ -27,7 +27,7 @@ Every `Aggregator.Wrapper` executes a specific metric gathering loop. It will be
 * `POL`(Proof-Of-Life) data:
   * `File`: check files periodically touched by the apps.
   * `Port`: try to establish a TCP connection to a port.
-  * `Socket`: try to establish a TCP connecction to a socket.
+  * `Socket`: try to establish a TCP connection to a socket.
 * ...
 
 All these modules implement the `Syscrap.Aggregator.Metric` behaviour. They are the ones that actually get the data. Their processing loops look like:
@@ -78,9 +78,23 @@ Each `Notificator.Worker` lives in a loop consuming pending notifications. For e
 * `MessageQueue`: enqueue a message somewhere with db-like access.
 * ...
 
+Notifications should ensure the message is actually sent, implement retry logic, and even alternate notification methods.
+
 
 ## TODOs
 
+* Add to travis
+* Think about distribution / replication
+* SSH connection for each Wrapper
+* Generate notifications when hierarchy finds trouble
+* Generate notifications when SSH connection fails
+* Implement basic Aggregations
+* Implement basic Reactions
+* Implement basic Notifications
+* Use Populator also with Notificator, based on notifications queue length
+* Implement more Aggregations, Reactions, Notifications
+* Notification retries and alternations
+* Get stable on production, bump to 1.0
 * Consider using https://github.com/ericmj/mongodb when it matures
 * ...
 
