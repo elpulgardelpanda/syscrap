@@ -82,9 +82,45 @@ Each `Notificator.Worker` lives in a loop consuming pending notifications. For e
 Notifications should ensure the message is actually sent, implement retry logic, and even alternate notification methods.
 
 
+## Deploy models
+
+The main purpose of `Syscrap` is to monitor servers to ensure its fitness within specified conditions. It can be thought to be deployed in many different ways, all with pros and cons. Some tools ([Bottler](https://github.com/rubencaro/bottler), exrm, etc.) may make it easier to deploy in one way or another, but here we expose some theoretical deploy layouts. Not the tools that do it.
+
+### Single server deployment
+
+This is the simplest way to deploy `Syscrap`. One single server with the app running on it. It's the easiest way to do it, but it has some clear limitations.
+
+* The first one is that you need some external monitoring tool to monitor the `Syscrap` server itself.
+* The number of monitored servers is limited to the actual capacity of that server. Typically on a regular 4 CPU core, 4GB RAM, 20GB disk you should be able to monitor several hundreds of servers and keep the history data of many months.
+* If the server where `Syscrap` is deployed goes down, then everything is down. There is no backup.
+
+![](/doc/deployment.dot.png)
+
+### Distributed application on Erlang nodes
+
+This deploy layout takes advantage of [Erlang Application Distribution](http://erlang.org/doc/design_principles/distributed_applications.html) machinery. It consists on keep two or more servers connected, and deploy `Syscrap` to all of them. Then Erlang manages to keep `Syscrap` alive on any of those servers, but only on one of them. The main advantage is that if the server where the app is running, Erlang will detect it and start a new instance of the app on one of the other servers, so there is always one and only one copy of the app running as long as at least one of the target servers is up.
+
+![](/doc/deployment2.dot.png)
+
+This gives a backup mechanism, but still has some of the caveats of the single server deploy layout:
+
+* One is the need of an external monitor to look for the `Syscrap` servers. Not only to control that the app is up, but to see it goes on nicely. Now that there is the failover/takeover Erlang mechanism it is much less likely to see the app down because the hosting server goes down, but it still needs some health monitoring.
+* The other is the limited capacity, for the app is still limited to one single server.
+
+### Herd network
+
+This layout is based on the idea of having several _single_server_ deployments monitoring each other. This way, each `Syscrap` server is monitoring its targets and at least one other `Syscrap` server, and each `Syscrap` server is being monitored at least by one other `Syscrap` server.
+
+If a Syscrap server goes down you can react to it (be notified, restart the broken server, etc.), just like any other target server. If it has any other health problem (CPU, RAM, disk, etc.) you can react as well.
+
+The size of a server is no longer a limit, because you can have as many Syscrap servers as you need, each monitoring as many targets as it can fit.
+
+![](/doc/deployment3.dot.png)
+
+The main problem is the deployment setup, which would need of a flexible enough tooling ([Bottler](https://github.com/rubencaro/bottler) + [Harakiri](https://github.com/rubencaro/harakiri) are enough). It would have to deploy each release to every server, and then setup the database configuration for each one of them to lay down the actual self watching network.
+
 ## TODOs
 
-* Think about distribution / replication
 * SSH connection for each Wrapper
 * Generate notifications when hierarchy finds trouble
 * Generate notifications when SSH connection fails
@@ -94,6 +130,7 @@ Notifications should ensure the message is actually sent, implement retry logic,
 * Use Populator also with Notificator, based on notifications queue length
 * Implement more Aggregations, Reactions, Notifications
 * Notification retries and alternations
+* Aggregations history limits.
 * Get stable on production, bump to 1.0
 * Consider using https://github.com/ericmj/mongodb when it matures
 * ...

@@ -1,0 +1,13 @@
+# render: dot -O -Tpng deployment2.dot
+# auto-render: https://gist.github.com/rubencaro/75e7b163665b47e0094a
+digraph deployment {
+  overlap=false;
+  rankdir="LR";
+  node [shape=box];
+
+  subgraph cluster_distributed_nodes {
+    label="Distributed nodes";
+    Syscrap21 -> Target21, Target22, Target23;
+    {rank=same; Syscrap22 -> Syscrap23 -> Syscrap21 [dir=none,style=dotted];}
+  }
+}

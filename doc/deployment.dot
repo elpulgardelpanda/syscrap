@@ -1,0 +1,13 @@
+# render: dot -O -Tpng deployment.dot
+# auto-render: https://gist.github.com/rubencaro/75e7b163665b47e0094a
+digraph deployment {
+  overlap=false;
+  rankdir="LR";
+  node [shape=box];
+
+  subgraph cluster_single_server {
+    label="Single server";
+    Syscrap1 -> Target11, Target12, Target13;
+  }
+
+}

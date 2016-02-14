@@ -1,0 +1,14 @@
+# render: dot -O -Tpng deployment3.dot
+# auto-render: https://gist.github.com/rubencaro/75e7b163665b47e0094a
+digraph deployment {
+  overlap=false;
+  node [shape=box];
+  layout="neato";
+
+  label="Herd network";
+  labelloc="t";
+  Syscrap31 -> Target31, Target32, Target33;
+  Syscrap32 -> Target34, Target35, Target36;
+  Syscrap33 -> Target37, Target38, Target39;
+  Syscrap31 -> Syscrap32 -> Syscrap33 -> Syscrap31 [dir=none;style=dotted];
+}
