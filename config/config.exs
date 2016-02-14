@@ -13,7 +13,13 @@ config :syscrap,
                        max_overflow: 10],
   mongo_db_opts:      [database: "syscrap"],
   aggregator_popopts: [step: 3000],
-  reactor_popopts:    [step: 3000]
+  reactor_popopts:    [step: 3000],
+  ssh_opts:           [connect: [user_dir: '~/.ssh', # where to look for id_rsa keys, they should have access to every target machine
+                                 silently_accept_hosts: true,
+                                 connect_timeout: :infinity, # transport layer timeout
+                                 idle_time: :infinity], # idle connection timeout
+                       negotiation_timeout: 5000, # connection establishment timeout
+                       port: 22]
 
 # Add configuration based on env
 import_config "#{Mix.env}.exs"

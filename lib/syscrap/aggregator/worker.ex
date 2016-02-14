@@ -19,14 +19,28 @@ defmodule Syscrap.Aggregator.Worker do
     aggopts = get_aggopts(opts)
 
     # get SSH connection with the target
-    H.todo "get SSH connection and add it to data being passed to wrappers"
-    ssh = :future_ssh_handle
+    {:ok, ssh} = establish_ssh_connection(opts)
 
     # build children specs based on all that
     children = build_children_specs(opts, aggopts[:metrics], ssh)
 
     # go on
     supervise( children, strategy: :one_for_one )
+  end
+
+  # Hide some param sanitizing needed by erlang's `:ssh`
+  #
+  defp establish_ssh_connection(opts) do
+    opts = opts |> H.defaults(ssh_module: :ssh)
+
+    target = opts[:data][:target] |> to_char_list
+    user = opts[:data][:user] |> to_char_list
+    connect_opts = H.env(:ssh_opts)[:connect] |> Keyword.merge(user: user)
+
+    opts[:ssh_module].connect(target,
+                              H.env(:ssh_opts)[:port],
+                              connect_opts,
+                              H.env(:ssh_opts)[:negotiation_timeout])
   end
 
   # Get aggregation_options for this target from DB.
