@@ -123,7 +123,15 @@ The main problem is the deployment setup, which would need of a flexible enough 
 
 * Generate notifications when SSH connection fails:
     * Remove the connection establishment code from the hierarchy building sequence. The worker itself cannot depend of whether the connection can be established. Worker successful start means the connection is _trying_ to be established, not necessarily established.
-    * Instead it should have some kind of connection handler that creates aggregation entries on db notifying of every retry for the connection, up until it gets to connect. That enables the event of _not being able to connect_ to be notified as any other. 
+    * Instead it should have some kind of connection handler that creates aggregation entries on db notifying of every retry for the connection, up until it gets to connect. That enables the event of _not being able to connect_ to be notified as any other.
+    * That means:
+        * A ConnectionAgent to hold the connection state
+        * Which will be read by a ConnectionWaiter, who starts all wrappers when the connection is ready.
+        * A ConnectionEstablisher that tries to get the       connection and then:
+            * saves it on the ConnectionAgent if it worked
+            * or write an aggregation to db complaining if it didn't, making it possible to react to that, and loops.
+        * The Worker simply starts all Connection related processes and leaves.
+        * Isn't all that packageable? (some State-Based-Relay library)
 * Generate notifications when hierarchy finds trouble
 * Implement basic Aggregations
 * Implement basic Reactions
