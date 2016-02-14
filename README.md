@@ -98,7 +98,7 @@ This is the simplest way to deploy `Syscrap`. One single server with the app run
 
 ### Distributed application on Erlang nodes
 
-This deploy layout takes advantage of [Erlang Application Distribution](http://erlang.org/doc/design_principles/distributed_applications.html) machinery. It consists on keep two or more servers connected, and deploy `Syscrap` to all of them. Then Erlang manages to keep `Syscrap` alive on any of those servers, but only on one of them. The main advantage is that if the server where the app is running, Erlang will detect it and start a new instance of the app on one of the other servers, so there is always one and only one copy of the app running as long as at least one of the target servers is up.
+This deploy layout takes advantage of [Erlang Application Distribution](http://erlang.org/doc/design_principles/distributed_applications.html) machinery. It consists on keep two or more servers connected, and deploy `Syscrap` to all of them. Then Erlang manages to keep `Syscrap` alive on any of those servers, but only on one of them. The main advantage is that if the server where the app is running goes down, Erlang will detect it and start a new instance of the app on one of the other servers, so there is always one and only one copy of the app running as long as at least one of the target servers is up.
 
 ![](/doc/deployment2.dot.png)
 
