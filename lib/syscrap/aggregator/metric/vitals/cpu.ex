@@ -10,6 +10,7 @@ defmodule Syscrap.Aggregator.Metric.Vitals.CPU do
 
     # DB: INSERT Aggregation for a metric,target,type,tag
     # DB: DELETE size capped Aggregations for a metric,target,type,tag
-
+    :timer.sleep(1000)
+    gather_loop(opts)
   end
 end

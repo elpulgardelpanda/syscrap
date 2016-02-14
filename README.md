@@ -109,7 +109,7 @@ This gives a backup mechanism, but still has some of the caveats of the single s
 
 ### Herd network
 
-This layout is based on the idea of having several _single_server_ deployments monitoring each other. This way, each `Syscrap` server is monitoring its targets and at least one other `Syscrap` server, and each `Syscrap` server is being monitored at least by one other `Syscrap` server.
+This layout is based on the idea of having several _single_server_ deployments monitoring each other. This way each `Syscrap` server is monitoring its targets and at least one other `Syscrap` server, and each `Syscrap` server is being monitored at least by one other `Syscrap` server.
 
 If a Syscrap server goes down you can react to it (be notified, restart the broken server, etc.), just like any other target server. If it has any other health problem (CPU, RAM, disk, etc.) you can react as well.
 
@@ -121,7 +121,6 @@ The main problem is the deployment setup, which would need of a flexible enough 
 
 ## TODOs
 
-* SSH connection for each Wrapper
 * Generate notifications when hierarchy finds trouble
 * Generate notifications when SSH connection fails
 * Implement basic Aggregations
