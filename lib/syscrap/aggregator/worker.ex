@@ -31,13 +31,11 @@ defmodule Syscrap.Aggregator.Worker do
   # Hide some param sanitizing needed by erlang's `:ssh`
   #
   defp establish_ssh_connection(opts) do
-    opts = opts |> H.defaults(ssh_module: :ssh)
-
     target = opts[:data][:target] |> to_char_list
     user = opts[:data][:user] |> to_char_list
     connect_opts = H.env(:ssh_opts)[:connect] |> Keyword.merge(user: user)
 
-    opts[:ssh_module].connect(target,
+    H.env(:ssh_module).connect(target,
                               H.env(:ssh_opts)[:port],
                               connect_opts,
                               H.env(:ssh_opts)[:negotiation_timeout])
