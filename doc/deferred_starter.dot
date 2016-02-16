@@ -1,0 +1,40 @@
+# render: dot -O -Tpng deferred_starter.dot
+# auto-render: https://gist.github.com/rubencaro/75e7b163665b47e0094a
+
+digraph deferred_starter {
+  overlap=false;
+  # rankdir="LR";
+  # node [shape=box];
+
+  Worker -> DeferredStarter [label="link"];
+  DeferredStarter -> Agent, Runner [label="link"];
+  DeferredStarter -> Agent [style=dotted,label="writes"];
+  Agent -> Runner [style=dotted,label="reads"];
+
+  { # notes
+    node [shape=box,color=gray95];
+    edge [style=dotted,dir=none,color=gray90];
+
+    DeferredStarter:e -> {N4 [label="Simple linked process.\n Gets the acquire and run functions\n and passes the run function to the Runner.\n Then Runs the given acquire function\n until it returns {:ok, state}.\n Then places it on the Agent."]};
+    Runner -> {N3 [label="Loops until the Agent has the acquired state.\n Then it passes it to the run function."]};
+  }
+}
+
+
+# function get_mtime {
+#   ls -l --time-style=+%s "${1?}" |  cut -d' ' -f6
+# }
+#
+# function go_render {
+#   dotfile="deferred_starter.dot"
+#   mtime=0
+#   while true;
+#   do
+#     newtime=$(get_mtime "$dotfile")
+#     test $mtime -ne $newtime && dot -O -Tpng $dotfile;
+#     mtime=$newtime
+#     sleep 1;
+#   done;
+# }
+#
+# go_render &

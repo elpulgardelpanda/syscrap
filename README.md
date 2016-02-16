@@ -119,19 +119,33 @@ The size of a server is no longer a limit, because you can have as many Syscrap 
 
 The main problem is the deployment setup, which would need of a flexible enough tooling ([Bottler](https://github.com/rubencaro/bottler) + [Harakiri](https://github.com/rubencaro/harakiri) are enough). It would have to deploy each release to every server, and then setup the database configuration for each one of them to lay down the actual self watching network.
 
+## DeferredStarter
+
+It happens that a Worker needs to acquire some state in order to perform its work, but failing to acquire that state is an expected case.
+
+For example, a Worker that needs to establish a network connection. When the connection cannot be established then it should keep trying until connectivity is recovered. Maybe log the situation, or notify somehow depending on the actual application. Only when the lack of connectivity it's considered a complete failure, maybe after trying for so much time, then it should crash. Then the supervisor should be configured to propagate the crash up the hierarchy meaning the application itself cannot start at all.
+
+In that case, a `DeferredStarter` is quite useful. The Worker should supervise (or start_link) a `DeferredStarter`, passing it two functions: the __acquire function__, and the __run function__.
+
+The __acquire function__ is where to place the code that tries to acquire the state. If it succeeds, then it should return `{:ok, state}`. If it does not, then it should return whatever it needs be passed on in the next iteration. Anytime it can do whatever it sees fit, such as keep a log on file, or emit messages.
+
+The __run function__ is the actual work the Worker was supposed to do, but was _deferred_ because it depends on the acquired state. The actual state is passed as an argument.
+
+The `DeferredStarter` will spawn_link three processes: an `Acquirer`, a `Runner`, and an `Agent`. The `Acquirer` will loop running the __acquire function__ until it returns `{:ok, state}`, then it will save the state into the `Agent`. The `Runner` will loop until it sees a valid state is saved on the `Agent`. Then it will execute the __run function__.
+
+![](/doc/deferred_starter.dot.png)
+
+If the __run function__ crashes (maybe because the acquired state expired) then it is propagated up through links until the Worker, which will crash too, and be restarted by its supervisor, or directly restart the `DeferredStarter` if the Worker is a supervisor itself. 
+
+Then the acquiring loop starts again.
+
 ## TODOs
 
 * Generate notifications when SSH connection fails:
     * Remove the connection establishment code from the hierarchy building sequence. The worker itself cannot depend of whether the connection can be established. Worker successful start means the connection is _trying_ to be established, not necessarily established.
     * Instead it should have some kind of connection handler that creates aggregation entries on db notifying of every retry for the connection, up until it gets to connect. That enables the event of _not being able to connect_ to be notified as any other.
-    * That means:
-        * A ConnectionAgent to hold the connection state
-        * Which will be read by a ConnectionWaiter, who starts all wrappers when the connection is ready.
-        * A ConnectionEstablisher that tries to get the       connection and then:
-            * saves it on the ConnectionAgent if it worked
-            * or write an aggregation to db complaining if it didn't, making it possible to react to that, and loops.
-        * The Worker simply starts all Connection related processes and leaves.
-        * Isn't all that packageable? (some State-Based-Relay library)
+    * => Use a DeferredStarter.
+* Define a DeferredStarter
 * Generate notifications when hierarchy finds trouble
 * Implement basic Aggregations
 * Implement basic Reactions
