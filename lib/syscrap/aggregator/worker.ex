@@ -13,19 +13,50 @@ defmodule Syscrap.Aggregator.Worker do
   end
 
   def init(opts) do
-    alias Syscrap.Aggregator.Metric, as: M
+    # defer the actual work
+    spawn_link(Syscrap.Aggregator.Worker, :do_work, [opts])
 
+    # init the (for now) empty supervisor
+    supervise([], strategy: :one_for_one)
+  end
+
+  # Do the actual Worker's work
+  #
+  def do_work(opts) do
     # retrieve aggregation_options for this target
     aggopts = get_aggopts(opts)
 
     # get SSH connection with the target
-    {:ok, ssh} = establish_ssh_connection(opts)
+    {:ok, ssh} = loop_to_establish_ssh_connection(opts)
 
     # build children specs based on all that
-    children = build_children_specs(opts, aggopts[:metrics], ssh)
+    build_children_specs(opts, aggopts[:metrics], ssh)
+    # add children specs to the supervisor, that should spawn them
+    |> populate_worker
+  end
 
-    # go on
-    supervise( children, strategy: :one_for_one )
+  # Add every child Wrapper to the Worker
+  #
+  defp populate_worker(specs) do
+    specs |> Enum.each(fn(spec)->
+      res = Supervisor.start_child(Syscrap.Aggregator.Worker, spec)
+      case res do
+        {:ok, _} -> :ok
+        {:ok, _, _} -> :ok
+        other -> raise other
+      end
+    end)
+  end
+
+  # Loop indefinitely until an SSH connection is established with the target
+  #
+  defp loop_to_establish_ssh_connection(opts) do
+    case establish_ssh_connection(opts) do
+      {:ok, ssh} -> {:ok, ssh}
+      {:error, reason} ->
+        H.todo "Notify of failure reason"
+        loop_to_establish_ssh_connection(opts)
+    end
   end
 
   # Hide some param sanitizing needed by erlang's `:ssh`
