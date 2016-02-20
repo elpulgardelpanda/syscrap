@@ -121,10 +121,7 @@ The main problem is the deployment setup, which would need of a flexible enough 
 
 ## TODOs
 
-* Generate notifications when SSH connection fails:
-    * Remove the connection establishment code from the hierarchy building sequence. The worker itself cannot depend of whether the connection can be established. Worker successful start means the connection is _trying_ to be established, not necessarily established.
-    * Instead it should have some kind of connection handler that creates aggregation entries on db notifying of every retry for the connection, up until it gets to connect. That enables the event of _not being able to connect_ to be notified as any other.
-    * => Use a simple `spawn_link`.
+* Generate notifications when SSH connection fails
 * Define a DeferredStarter
 * Generate notifications when hierarchy finds trouble
 * Implement basic Aggregations

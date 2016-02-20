@@ -32,14 +32,14 @@ defmodule Syscrap.Aggregator.Worker do
     # build children specs based on all that
     build_children_specs(opts, aggopts[:metrics], ssh)
     # add children specs to the supervisor, that should spawn them
-    |> populate_worker
+    |> populate_worker(opts)
   end
 
   # Add every child Wrapper to the Worker
   #
-  defp populate_worker(specs) do
+  defp populate_worker(specs, opts) do
     specs |> Enum.each(fn(spec)->
-      res = Supervisor.start_child(Syscrap.Aggregator.Worker, spec)
+      res = Supervisor.start_child(opts[:name], spec)
       case res do
         {:ok, _} -> :ok
         {:ok, _, _} -> :ok
@@ -64,12 +64,10 @@ defmodule Syscrap.Aggregator.Worker do
   defp establish_ssh_connection(opts) do
     target = opts[:data][:target] |> to_char_list
     user = opts[:data][:user] |> to_char_list
-    connect_opts = H.env(:ssh_opts)[:connect] |> Keyword.merge(user: user)
 
-    H.env(:ssh_module).connect(target,
-                              H.env(:ssh_opts)[:port],
-                              connect_opts,
-                              H.env(:ssh_opts)[:negotiation_timeout])
+    H.env(:ssh_opts)
+    |> Keyword.merge(user: user, ip: target)
+    |> H.env(:ssh_module).connect
   end
 
   # Get aggregation_options for this target from DB.
