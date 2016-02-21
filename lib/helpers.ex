@@ -65,6 +65,11 @@ defmodule Syscrap.Helpers do
         |> Keyword.merge(kw1)
         |> here_i_need_defaults
 
+      iex> [a: 3] |> Syscrap.Helpers.defaults(a: 4, b: 5)
+      [b: 5, a: 3]
+      iex> %{a: 3} |> Syscrap.Helpers.defaults(%{a: 4, b: 5})
+      %{a: 3, b: 5}
+
   """
   def defaults(args, defs) when is_map(args) and is_map(defs) do
     defs |> Map.merge(args)
@@ -117,6 +122,24 @@ defmodule Syscrap.Helpers do
     children = supervisor |> Supervisor.which_children
     for {_,pid,_,_} <- children, do: true = Process.exit(pid, :kill)
     :ok
+  end
+
+  @doc """
+    Set given value on given keys coordinates inside given map.
+    If any intermediate coordinate is nil, then it's created as an empty map.
+
+      iex> Syscrap.Helpers.set_in(%{}, 3, [:a, :b, :c])
+      %{a: %{b: %{c: 3}}}
+      iex> Syscrap.Helpers.set_in(%{a: %{b: 3}}, 5, [:a, :b])
+      %{a: %{b: 5}}
+      iex> Syscrap.Helpers.set_in(%{a: %{b: 3}}, 5, [:a, :c])
+      %{a: %{b: 3, c: 5}}
+
+  """
+  def set_in(map, value, [k | []]), do: Map.put(map, k, value)
+  def set_in(map, value, [k | keys]) do
+    m = Map.get(map, k, %{})
+    Map.put(map, k, set_in(m, value, keys))
   end
 
 end

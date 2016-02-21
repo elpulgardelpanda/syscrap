@@ -121,9 +121,8 @@ The main problem is the deployment setup, which would need of a flexible enough 
 
 ## TODOs
 
+* SSH ops testing
 * Generate notifications when SSH connection fails
-* Define a DeferredStarter
-* Generate notifications when hierarchy finds trouble
 * Implement basic Aggregations
 * Implement basic Reactions
 * Implement basic Notifications

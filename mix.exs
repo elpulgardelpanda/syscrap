@@ -15,8 +15,7 @@ defmodule Syscrap.Mixfile do
   end
 
   defp deps do
-    [ {:gen_smtp, "0.9.0"},
-      {:poolboy, "~> 1.5"},
+    [ {:poolboy, "~> 1.5"},
       {:mongo, "~> 0.5"},
       {:sshex, "~> 2.1"},
       {:harakiri, github: "rubencaro/harakiri"}, # for now get it from master
