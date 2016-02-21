@@ -127,6 +127,8 @@ defmodule Syscrap.Helpers do
   @doc """
     Set given value on given keys coordinates inside given map.
     If any intermediate coordinate is nil, then it's created as an empty map.
+    If given value is a function, then the function is executed passing it
+    the previous value (which can be nil).
 
       iex> Syscrap.Helpers.set_in(%{}, 3, [:a, :b, :c])
       %{a: %{b: %{c: 3}}}
@@ -134,8 +136,15 @@ defmodule Syscrap.Helpers do
       %{a: %{b: 5}}
       iex> Syscrap.Helpers.set_in(%{a: %{b: 3}}, 5, [:a, :c])
       %{a: %{b: 3, c: 5}}
+      iex> Syscrap.Helpers.set_in(%{}, &("Hey " <> to_string(&1)), [:a, :b])
+      %{a: %{b: "Hey "}}
+      iex> Syscrap.Helpers.set_in(%{a: %{b: "Hansel"}}, &("Hey " <> to_string(&1)), [:a, :b])
+      %{a: %{b: "Hey Hansel"}}
 
   """
+  def set_in(map, func,  [k | []]) when is_function(func) do
+    Map.update(map, k, func.(nil), func)
+  end
   def set_in(map, value, [k | []]), do: Map.put(map, k, value)
   def set_in(map, value, [k | keys]) do
     m = Map.get(map, k, %{})

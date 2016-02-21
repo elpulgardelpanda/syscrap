@@ -1,4 +1,5 @@
 require Syscrap.Helpers, as: H
+alias Syscrap.Helpers.Metadata, as: HM
 require Syscrap.TestHelpers, as: TH
 
 defmodule HierarchyTest do
@@ -47,6 +48,12 @@ defmodule HierarchyTest do
     check_supervisor :"Aggregator for 1.1.1.1", wrappers1
     check_supervisor :"Aggregator for 1.1.1.2", wrappers2
     check_supervisor :"Aggregator for 1.1.1.3", []
+
+    # check every worker tried to connect to the target
+    calls = HM.at_in([:test, SSHExAllOK, :connect], [])
+    assert 3 == Enum.count(calls)
+    targets |> Enum.map(&(&1.target))
+    |> Enum.each(fn(t)-> assert Enum.any?(calls, &(&1.args[:ip] == to_char_list(t))) end)
   end
 
   test "Notificator hierarchy looks good" do
