@@ -7,6 +7,7 @@ defmodule HierarchyTest do
 
   setup do
     TH.Db.drop ["targets", "reaction_targets", "aggregation_options"]
+    HM.clear
     :ok
   end
 
@@ -52,8 +53,8 @@ defmodule HierarchyTest do
     # check every worker tried to connect to the target
     calls = HM.at_in([:test, SSHExAllOK, :connect], [])
     assert 3 == Enum.count(calls)
-    targets |> Enum.map(&(&1.target))
-    |> Enum.each(fn(t)-> assert Enum.any?(calls, &(&1.args[:ip] == to_char_list(t))) end)
+    targets |> Enum.map(&(&1.target |> to_char_list))
+    |> TH.assert_any(calls, &(&1 == &2.args[:ip]))
   end
 
   test "Notificator hierarchy looks good" do

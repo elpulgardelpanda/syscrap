@@ -121,7 +121,6 @@ The main problem is the deployment setup, which would need of a flexible enough 
 
 ## TODOs
 
-* SSH ops testing
 * Generate notifications when SSH connection fails
 * Implement basic Aggregations
 * Implement basic Reactions

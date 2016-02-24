@@ -73,6 +73,14 @@ defmodule Syscrap.Helpers.Metadata do
   end
 
   @doc """
+    Clear any state on the metadata Agent
+  """
+  def clear(opts \\ []) do
+    init(opts)
+    Agent.update(MA, fn(_)-> %{} end)
+  end
+
+  @doc """
   Start the metadata agent if it's not already started.
   Only useful when `:no_start` is used on the get/set functions.
 

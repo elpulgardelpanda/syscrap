@@ -1,10 +1,33 @@
 require Syscrap.Helpers, as: H
 alias Mongo.Collection, as: MC
+require ExUnit.Assertions, as: A
 
 ExUnit.start()
 
 
 defmodule Syscrap.TestHelpers do
+
+  @moduledoc """
+    Some custom assertions
+  """
+
+  @doc """
+    Assert that every element of the first list evaluates the given func to true
+    when combined with at least one element on the second list.
+
+    ## Example:
+
+      a = [1,2,3,4]
+      b = [2,4,6,8]
+      a |> assert_any(b, &( 2*&1 == &2 )) # ok
+  """
+  def assert_any(list1, list2, func) do
+    Enum.each(list1, fn(e1)->
+        A.assert Enum.any?(list2, fn(e2)->
+          func.(e1, e2)
+        end), "#{inspect e1} did not assert against #{inspect list2}"
+    end)
+  end
 
 end
 
