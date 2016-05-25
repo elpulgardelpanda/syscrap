@@ -1,10 +1,10 @@
 %{"bottler": {:git, "https://github.com/rubencaro/bottler.git", "bfd696e69a6ad346359cc7a93d68f3cb6dfb739d", []},
-  "bson": {:hex, :bson, "0.4.4"},
+  "bson": {:hex, :bson, "0.4.4", "175ad645cc492349a4cefa0bdff612178a0db611adf38dabe2bbfad2aa25627a", [:mix], []},
   "connection": {:hex, :connection, "1.0.2"},
   "gen_smtp": {:hex, :gen_smtp, "0.9.0"},
   "harakiri": {:git, "https://github.com/rubencaro/harakiri.git", "ef4bb0b2b65db9d4924e4e285a980bfe1e19f63a", []},
-  "mongo": {:hex, :mongo, "0.5.2"},
+  "mongo": {:hex, :mongo, "0.5.2", "8d9b451e4540b8e951f933ff66a6b9cdf9f6a3867fbe5a57bfe603009a4e7107", [:mix], [{:bson, "~> 0.4.4", [hex: :bson, optional: false]}]},
   "mongodb": {:hex, :mongodb, "0.1.1"},
-  "poolboy": {:hex, :poolboy, "1.5.1"},
+  "poolboy": {:hex, :poolboy, "1.5.1", "6b46163901cfd0a1b43d692657ed9d7e599853b3b21b95ae5ae0a777cf9b6ca8", [:rebar], []},
   "populator": {:git, "https://github.com/rubencaro/populator.git", "a67f101341dd29abb438d4e5ad7e0f4e75768304", []},
-  "sshex": {:hex, :sshex, "2.1.0"}}
+  "sshex": {:hex, :sshex, "2.1.0", "943489f576978db0936d9714966bf06e615550c7b787492ce7a0bd4469c0ac7f", [:mix], []}}

@@ -20,7 +20,7 @@ config :syscrap,
                        silently_accept_hosts: true,
                        connect_timeout: :infinity, # transport layer timeout
                        idle_time: :infinity, # idle connection timeout
-                       negotiation_timeout: 5000, # connection establishment timeout
+                       negotiation_timeout: 30_000, # connection establishment timeout
                        port: 22],
   ssh_module: Syscrap.Mocks.SSHExAllOK  # testability
 
